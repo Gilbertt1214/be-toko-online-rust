@@ -1,10 +1,17 @@
 use async_graphql::{Context, EmptySubscription, Object, Schema};
 use async_graphql_axum::{GraphQLRequest, GraphQLResponse};
-use axum::{routing::get, routing::post, Router, response::Html, extract::State};
+use axum::{
+    extract::State,
+    http::StatusCode,
+    response::{Html, IntoResponse, Response},
+    routing::{get, post},
+    Router,
+};
 use dotenvy::dotenv;
 use sea_orm::{Database, DatabaseConnection, EntityTrait, ActiveModelTrait, Set};
 use std::env;
 use tokio::net::TcpListener;
+use std::sync::Arc;
 
 mod entities;
 use entities::user;
@@ -78,6 +85,8 @@ impl MutationRoot {
     }
 }
 
+type MySchema = Schema<QueryRoot, MutationRoot, EmptySubscription>;
+
 #[tokio::main]
 async fn main() {
     dotenv().ok();
@@ -91,7 +100,7 @@ async fn main() {
     let app = Router::new()
         .route("/", get(graphiql))
         .route("/graphql", post(graphql_handler))
-        .with_state(schema);
+        .with_state(Arc::new(schema));
 
     println!("🚀 Server running at http://localhost:3000");
 
@@ -100,12 +109,13 @@ async fn main() {
 }
 
 async fn graphql_handler(
-    State(schema): State<Schema<QueryRoot, MutationRoot, EmptySubscription>>,
+    State(schema): State<Arc<MySchema>>,
     req: GraphQLRequest,
-) -> GraphQLResponse {
-    schema.execute(req.into_inner()).await.into()
+) -> Result<GraphQLResponse, StatusCode> {
+    let response = schema.execute(req.into_inner()).await;
+    Ok(response.into())
 }
 
-async fn graphiql() -> Html<String> {
+async fn graphiql() -> impl IntoResponse {
     Html(async_graphql::http::GraphiQLSource::build().endpoint("/graphql").finish())
 }
