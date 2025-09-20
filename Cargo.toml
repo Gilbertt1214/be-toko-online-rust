@@ -1,12 +1,19 @@
 [package]
-name = "hello-word"
+name = "be-toko-online-rust"
 version = "0.1.0"
-edition = "2024"
+edition = "2021"
 
 [dependencies]
-async-graphql = "7"
-async-graphql-axum = "7"
-axum = "0.7"
-tokio = { version = "1", features = ["full"] }
-sea-orm = { version = "1", features = ["sqlx-postgres", "runtime-tokio-rustls"] }
+async-graphql = "7.0.11"
+async-graphql-axum = "7.0.11"
+axum = { version = "0.7.9", features = ["macros"] }
 dotenvy = "0.15"
+sea-orm = { version = "0.12", features = ["sqlx-postgres", "runtime-tokio-rustls", "macros"] }
+tokio = { version = "1.0", features = ["full"] }
+serde = { version = "1.0", features = ["derive"] }
+tower = "0.5"
+tower-http = { version = "0.6", features = ["cors"] }
+
+# Paksa semua dependencies menggunakan axum versi yang sama
+[patch.crates-io]
+axum = { version = "0.7.9" }
