@@ -1,17 +1,16 @@
 use async_graphql::{Context, EmptySubscription, Object, Schema};
 use async_graphql_axum::{GraphQLRequest, GraphQLResponse};
 use axum::{
-    extract::State,
-    http::StatusCode,
-    response::{Html, IntoResponse, Response},
+    extract::Extension,
+    response::Html,
     routing::{get, post},
-    Router,
+    Router, Server,
 };
 use dotenvy::dotenv;
 use sea_orm::{Database, DatabaseConnection, EntityTrait, ActiveModelTrait, Set};
 use std::env;
-use tokio::net::TcpListener;
 use std::sync::Arc;
+use std::net::SocketAddr;
 
 mod entities;
 use entities::user;
@@ -90,8 +89,13 @@ type MySchema = Schema<QueryRoot, MutationRoot, EmptySubscription>;
 #[tokio::main]
 async fn main() {
     dotenv().ok();
-    let database_url = env::var("DATABASE_URL").expect("DATABASE_URL not set");
-    let db = Database::connect(&database_url).await.expect("DB connect error");
+    
+    let database_url = env::var("DATABASE_URL")
+        .unwrap_or_else(|_| "postgresql://postgres:password@localhost:5432/toko_online".to_string());
+    
+    let db = Database::connect(&database_url)
+        .await
+        .expect("Failed to connect to database");
 
     let schema = Schema::build(QueryRoot, MutationRoot, EmptySubscription)
         .data(db)
@@ -100,22 +104,27 @@ async fn main() {
     let app = Router::new()
         .route("/", get(graphiql))
         .route("/graphql", post(graphql_handler))
-        .with_state(Arc::new(schema));
+        .layer(Extension(Arc::new(schema)));
 
+    let addr = SocketAddr::from(([0, 0, 0, 0], 3000));
     println!("🚀 Server running at http://localhost:3000");
+    println!("📊 GraphiQL available at http://localhost:3000");
 
-    let listener = TcpListener::bind("0.0.0.0:3000").await.unwrap();
-    axum::serve(listener, app).await.unwrap();
+    Server::bind(&addr)
+        .serve(app.into_make_service())
+        .await
+        .unwrap();
 }
 
 async fn graphql_handler(
-    State(schema): State<Arc<MySchema>>,
+    Extension(schema): Extension<Arc<MySchema>>,
     req: GraphQLRequest,
-) -> Result<GraphQLResponse, StatusCode> {
-    let response = schema.execute(req.into_inner()).await;
-    Ok(response.into())
+) -> GraphQLResponse {
+    schema.execute(req.into_inner()).await.into()
 }
 
-async fn graphiql() -> impl IntoResponse {
-    Html(async_graphql::http::GraphiQLSource::build().endpoint("/graphql").finish())
+async fn graphiql() -> Html<String> {
+    Html(async_graphql::http::GraphiQLSource::build()
+        .endpoint("/graphql")
+        .finish())
 }
