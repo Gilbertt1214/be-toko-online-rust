@@ -1,19 +1,24 @@
 use async_graphql::{Context, EmptySubscription, Object, Schema};
 use async_graphql_axum::{GraphQLRequest, GraphQLResponse};
 use axum::{
-    extract::Extension,
+    extract::State,
     response::Html,
     routing::{get, post},
-    Router, Server,
+    Router,
 };
 use dotenvy::dotenv;
 use sea_orm::{Database, DatabaseConnection, EntityTrait, ActiveModelTrait, Set};
 use std::env;
 use std::sync::Arc;
-use std::net::SocketAddr;
+use tokio::net::TcpListener;
 
 mod entities;
 use entities::user;
+
+#[derive(Clone)]
+struct AppState {
+    schema: Schema<QueryRoot, MutationRoot, EmptySubscription>,
+}
 
 struct QueryRoot;
 
@@ -84,8 +89,6 @@ impl MutationRoot {
     }
 }
 
-type MySchema = Schema<QueryRoot, MutationRoot, EmptySubscription>;
-
 #[tokio::main]
 async fn main() {
     dotenv().ok();
@@ -101,28 +104,31 @@ async fn main() {
         .data(db)
         .finish();
 
+    let state = AppState { schema };
+
     let app = Router::new()
         .route("/", get(graphiql))
         .route("/graphql", post(graphql_handler))
-        .layer(Extension(Arc::new(schema)));
+        .with_state(state);
 
-    let addr = SocketAddr::from(([0, 0, 0, 0], 3000));
     println!("🚀 Server running at http://localhost:3000");
     println!("📊 GraphiQL available at http://localhost:3000");
 
-    Server::bind(&addr)
-        .serve(app.into_make_service())
+    let listener = TcpListener::bind("0.0.0.0:3000")
         .await
-        .unwrap();
+        .expect("Failed to bind to port 3000");
+        
+    axum::serve(listener, app)
+        .await
+        .expect("Server failed to start");
 }
 
 async fn graphql_handler(
-    Extension(schema): Extension<Arc<MySchema>>,
+    State(state): State<AppState>,
     req: GraphQLRequest,
 ) -> GraphQLResponse {
-    schema.execute(req.into_inner()).await.into()
+    state.schema.execute(req.into_inner()).await.into()
 }
-
 async fn graphiql() -> Html<String> {
     Html(async_graphql::http::GraphiQLSource::build()
         .endpoint("/graphql")
