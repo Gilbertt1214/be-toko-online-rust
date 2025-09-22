@@ -156,7 +156,7 @@ impl MutationRoot {
 }
 
 #[tokio::main]
-async fn main() -> Result<(), Box<dyn std::error::Error>> {  // ✅ Added proper error handling
+async fn main() -> Result<(), Box<dyn std::error::Error>> {  
     dotenv().ok();
 
     // URL database (ganti sesuai .env)
