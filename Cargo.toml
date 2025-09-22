@@ -16,3 +16,4 @@ hyper = { version = "1.7", features = ["full"] }
 argon2 = "0.5"
 jsonwebtoken = "9"
 chrono = "0.4"
+tower-http = { version = "0.6.6", features = ["cors"] }

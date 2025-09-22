@@ -7,12 +7,14 @@ use axum::{
     Router,
 };
 use dotenvy::dotenv;
-use sea_orm::{ Database, ColumnTrait, DatabaseConnection, EntityTrait, ActiveModelTrait, Set};
+use sea_orm::{Database, ColumnTrait, DatabaseConnection, EntityTrait, ActiveModelTrait, Set};
 use std::env;
 use sea_orm::QueryFilter;
 use tokio::net::TcpListener;
 use utils::auth::{hash_password, verify_password};
 use utils::jwt::create_jwt;
+use tower_http::cors::{Any, CorsLayer};
+
 mod utils;
 mod entities;
 use entities::user;
@@ -31,6 +33,20 @@ impl QueryRoot {
         let users = user::Entity::find().all(db).await?;
         Ok(users)
     }
+
+    async fn users_by_role(
+        &self,
+        ctx: &Context<'_>,
+        role: user::UserRole, 
+    ) -> async_graphql::Result<Vec<user::Model>> {
+        let db = ctx.data::<DatabaseConnection>()?;
+
+        let users = user::Entity::find()
+            .filter(user::Column::Role.eq(role))
+            .all(db)
+            .await?;
+        Ok(users)
+    }
 }
 
 struct MutationRoot;
@@ -43,6 +59,7 @@ impl MutationRoot {
         username: String,
         email: String,
         password: String,
+        role: user::UserRole,  
     ) -> async_graphql::Result<user::Model> {
         let db = ctx.data::<DatabaseConnection>()?;
         let hashed = hash_password(&password);
@@ -51,11 +68,29 @@ impl MutationRoot {
             username: Set(username),
             email: Set(email),
             password: Set(Some(hashed)),
+            role: Set(role),  // ✅ Use the enum directly
             ..Default::default()
         };
 
         let res = new_user.insert(db).await?;
         Ok(res)
+    }
+
+    async fn update_role(
+        &self,
+        ctx: &Context<'_>,
+        id: i32,
+        role: user::UserRole,
+    ) -> async_graphql::Result<Option<user::Model>> {
+        let db = ctx.data::<DatabaseConnection>()?;
+
+        if let Some(u) = user::Entity::find_by_id(id).one(db).await? {
+            let mut active: user::ActiveModel = u.into();
+            active.role = Set(role); 
+            let updated = active.update(db).await?;
+            return Ok(Some(updated));
+        }
+        Ok(None)
     }
 
     async fn login(
@@ -74,7 +109,7 @@ impl MutationRoot {
             if let Some(hashed) = user.password {
                 if verify_password(&hashed, &password) {
                     let token = create_jwt(&email);
-                    return Ok(token); // FE akan simpan JWT ini
+                    return Ok(token); 
                 }
             }
         }
@@ -85,9 +120,9 @@ impl MutationRoot {
         &self,
         ctx: &Context<'_>,
         id: i32,
-        email : String,
+        email: String,
         username: Option<String>,
-        password: String,
+        password: String,  
     ) -> async_graphql::Result<Option<user::Model>> {
         let db = ctx.data::<DatabaseConnection>()?;
 
@@ -97,8 +132,12 @@ impl MutationRoot {
             if let Some(n) = username {
                 active.username = Set(n);
             }
-            active.password = Set(Some(password));
+            
+            // ✅ Hash the password before storing
+            let hashed = hash_password(&password);
+            active.password = Set(Some(hashed));
             active.email = Set(email);
+            
             let updated = active.update(db).await?;
             return Ok(Some(updated));
         }
@@ -117,16 +156,19 @@ impl MutationRoot {
 }
 
 #[tokio::main]
-async fn main() {
+async fn main() -> Result<(), Box<dyn std::error::Error>> {  // ✅ Added proper error handling
     dotenv().ok();
 
     // URL database (ganti sesuai .env)
     let database_url = env::var("DATABASE_URL")
         .unwrap_or_else(|_| "postgresql://postgres:password@localhost:5432/toko_online".to_string());
 
+    println!("🔗 Connecting to database...");
     let db = Database::connect(&database_url)
         .await
         .expect("Failed to connect to database");
+    
+    println!("✅ Database connected successfully");
 
     let schema = Schema::build(QueryRoot, MutationRoot, EmptySubscription)
         .data(db)
@@ -134,10 +176,16 @@ async fn main() {
 
     let state = AppState { schema };
 
+    let cors = CorsLayer::new()
+        .allow_origin(Any) 
+        .allow_methods(Any)
+        .allow_headers(Any);
+
     let app = Router::new()
         .route("/", get(graphiql))
         .route("/graphql", post(graphql_handler))
-        .with_state(state);
+        .with_state(state)
+        .layer(cors);
 
     println!("🚀 Server running at http://localhost:4000");
     println!("📊 GraphiQL available at http://localhost:4000");
@@ -149,6 +197,8 @@ async fn main() {
     axum::serve(listener, app)
         .await
         .expect("Server failed to start");
+    
+    Ok(())
 }
 
 async fn graphql_handler(
