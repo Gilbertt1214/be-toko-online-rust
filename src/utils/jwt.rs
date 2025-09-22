@@ -8,7 +8,7 @@ const SECRET: &[u8] = b"SECRET_KEY"; // ganti dengan env variable
 pub struct Claims {
     pub sub: String, // biasanya email
     pub exp: usize,
-}
+}   
 
 pub fn create_jwt(email: &str) -> String {
     let expiration = Utc::now()
