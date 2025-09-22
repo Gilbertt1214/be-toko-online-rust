@@ -47,6 +47,29 @@ impl QueryRoot {
             .await?;
         Ok(users)
     }
+
+    async fn user_by_id(
+        &self,
+        ctx: &Context<'_>,
+        id: i32,
+    ) -> async_graphql::Result<Option<user::Model>> {
+        let db = ctx.data::<DatabaseConnection>()?;
+        let user = user::Entity::find_by_id(id).one(db).await?;
+        Ok(user)
+    }
+
+    async fn user_by_email(
+        &self,
+        ctx: &Context<'_>,
+        email: String,
+    ) -> async_graphql::Result<Option<user::Model>> {
+        let db = ctx.data::<DatabaseConnection>()?;
+        let user = user::Entity::find()
+            .filter(user::Column::Email.eq(email))
+            .one(db)
+            .await?;
+        Ok(user)
+    }
 }
 
 struct MutationRoot;
@@ -159,7 +182,7 @@ impl MutationRoot {
 async fn main() -> Result<(), Box<dyn std::error::Error>> {  
     dotenv().ok();
 
-    // URL database (ganti sesuai .env)
+    
     let database_url = env::var("DATABASE_URL")
         .unwrap_or_else(|_| "postgresql://postgres:password@localhost:5432/toko_online".to_string());
 
