@@ -13,3 +13,6 @@ tokio = { version = "1.0", features = ["full"] }
 serde = { version = "1.0", features = ["derive"] }
 tower = "0.5.2"
 hyper = { version = "1.7", features = ["full"] }
+argon2 = "0.5"
+jsonwebtoken = "9"
+chrono = "0.4"
