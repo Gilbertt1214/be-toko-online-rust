@@ -139,12 +139,12 @@ async fn main() {
         .route("/graphql", post(graphql_handler))
         .with_state(state);
 
-    println!("🚀 Server running at http://localhost:3000");
-    println!("📊 GraphiQL available at http://localhost:3000");
+    println!("🚀 Server running at http://localhost:4000");
+    println!("📊 GraphiQL available at http://localhost:4000");
 
-    let listener = TcpListener::bind("0.0.0.0:3000")
+    let listener = TcpListener::bind("0.0.0.0:4000")
         .await
-        .expect("Failed to bind to port 3000");
+        .expect("Failed to bind to port 4000");
 
     axum::serve(listener, app)
         .await
