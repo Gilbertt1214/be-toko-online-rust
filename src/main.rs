@@ -7,11 +7,13 @@ use axum::{
     Router,
 };
 use dotenvy::dotenv;
-use sea_orm::{Database, DatabaseConnection, EntityTrait, ActiveModelTrait, Set};
+use sea_orm::{ Database, ColumnTrait, DatabaseConnection, EntityTrait, ActiveModelTrait, Set};
 use std::env;
-use std::sync::Arc;
+use sea_orm::QueryFilter;
 use tokio::net::TcpListener;
-
+use utils::auth::{hash_password, verify_password};
+use utils::jwt::create_jwt;
+mod utils;
 mod entities;
 use entities::user;
 
@@ -35,17 +37,20 @@ struct MutationRoot;
 
 #[Object]
 impl MutationRoot {
-    async fn create_user(
+    async fn register(
         &self,
         ctx: &Context<'_>,
         username: String,
+        email: String,
         password: String,
     ) -> async_graphql::Result<user::Model> {
         let db = ctx.data::<DatabaseConnection>()?;
+        let hashed = hash_password(&password);
 
         let new_user = user::ActiveModel {
             username: Set(username),
-            password: Set(Some(password)),
+            email: Set(email),
+            password: Set(Some(hashed)),
             ..Default::default()
         };
 
@@ -53,12 +58,36 @@ impl MutationRoot {
         Ok(res)
     }
 
+    async fn login(
+        &self,
+        ctx: &Context<'_>,
+        email: String,
+        password: String,
+    ) -> async_graphql::Result<String> {
+        let db = ctx.data::<DatabaseConnection>()?;
+
+        if let Some(user) = user::Entity::find()
+            .filter(user::Column::Email.eq(email.clone()))
+            .one(db)
+            .await?
+        {
+            if let Some(hashed) = user.password {
+                if verify_password(&hashed, &password) {
+                    let token = create_jwt(&email);
+                    return Ok(token); // FE akan simpan JWT ini
+                }
+            }
+        }
+        Err("Invalid email or password".into())
+    }
+
     async fn update_user(
         &self,
         ctx: &Context<'_>,
         id: i32,
+        email : String,
         username: Option<String>,
-        password: Option<String>,
+        password: String,
     ) -> async_graphql::Result<Option<user::Model>> {
         let db = ctx.data::<DatabaseConnection>()?;
 
@@ -68,10 +97,8 @@ impl MutationRoot {
             if let Some(n) = username {
                 active.username = Set(n);
             }
-            if let Some(p) = password {
-                active.password = Set(Some(p));
-            }
-
+            active.password = Set(Some(password));
+            active.email = Set(email);
             let updated = active.update(db).await?;
             return Ok(Some(updated));
         }
@@ -92,10 +119,11 @@ impl MutationRoot {
 #[tokio::main]
 async fn main() {
     dotenv().ok();
-    
+
+    // URL database (ganti sesuai .env)
     let database_url = env::var("DATABASE_URL")
         .unwrap_or_else(|_| "postgresql://postgres:password@localhost:5432/toko_online".to_string());
-    
+
     let db = Database::connect(&database_url)
         .await
         .expect("Failed to connect to database");
@@ -117,7 +145,7 @@ async fn main() {
     let listener = TcpListener::bind("0.0.0.0:3000")
         .await
         .expect("Failed to bind to port 3000");
-        
+
     axum::serve(listener, app)
         .await
         .expect("Server failed to start");
@@ -129,6 +157,7 @@ async fn graphql_handler(
 ) -> GraphQLResponse {
     state.schema.execute(req.into_inner()).await.into()
 }
+
 async fn graphiql() -> Html<String> {
     Html(async_graphql::http::GraphiQLSource::build()
         .endpoint("/graphql")
