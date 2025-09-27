@@ -136,7 +136,7 @@ impl MutationRoot {
                 }
             }
         }
-        Err("Invalid email or password".into())
+        Err("Email password salaah jir".into())
     }
 
     async fn update_user(
@@ -189,9 +189,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("🔗 Connecting to database...");
     let db = Database::connect(&database_url)
         .await
-        .expect("Failed to connect to database");
+        .expect("gagal konek ke database");
     
-    println!("✅ Database connected successfully");
+    println!(" Database konek anjay!");
 
     let schema = Schema::build(QueryRoot, MutationRoot, EmptySubscription)
         .data(db)
@@ -215,11 +215,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let listener = TcpListener::bind("0.0.0.0:4000")
         .await
-        .expect("Failed to bind to port 4000");
+        .expect("Gagal nyambung ke port 4000");
 
     axum::serve(listener, app)
         .await
-        .expect("Server failed to start");
+        .expect("Server gagal jalan anjay");
     
     Ok(())
 }
