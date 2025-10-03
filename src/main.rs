@@ -8,7 +8,7 @@ mod utils;
 
 use axum::{
     extract::Extension,
-    http::StatusCode,
+    http::{StatusCode, Method},
     response::{Html, IntoResponse, Response},
     routing::get,
     Json, Router,
@@ -16,7 +16,7 @@ use axum::{
 use async_graphql::{EmptySubscription, Schema};
 use async_graphql_axum::{GraphQLRequest, GraphQLResponse};
 use serde_json::json;
-use tower_http::cors::CorsLayer;
+use tower_http::cors::{CorsLayer, Any};
 
 type AppSchema = Schema<schema::QueryRoot, schema::MutationRoot, EmptySubscription>;
 
@@ -27,11 +27,69 @@ async fn graphql_handler(
     schema.execute(req.into_inner()).await.into()
 }
 
+// ✅ Apollo Sandbox dengan Dynamic Endpoint
 async fn graphql_playground() -> impl IntoResponse {
-    Html(async_graphql::http::playground_source(
-        async_graphql::http::GraphQLPlaygroundConfig::new("/graphql"),
-    ))
+    Html(r#"
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Apollo Sandbox - Toko Online API</title>
+        <style>
+            body {
+                margin: 0;
+                padding: 0;
+                overflow: hidden;
+            }
+            #loading {
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                font-family: Arial, sans-serif;
+                color: #666;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="loading">🚀 Loading Apollo Sandbox...</div>
+        <div style="width: 100%; height: 100vh; display: none;" id='embedded-sandbox'></div>
+        <script src="https://embeddable-sandbox.cdn.apollographql.com/_latest/embeddable-sandbox.umd.production.min.js"></script>
+        <script>
+          // ✅ Deteksi endpoint otomatis dari URL browser
+          const currentUrl = window.location.origin;
+          const graphqlEndpoint = currentUrl + '/graphql';
+          
+          console.log('🔗 Detected endpoint:', graphqlEndpoint);
+          
+          // Load Apollo Sandbox
+          new window.EmbeddedSandbox({
+            target: '#embedded-sandbox',
+            initialEndpoint: graphqlEndpoint,
+            includeCookies: true,
+          });
+          
+          // Hide loading, show sandbox
+          setTimeout(() => {
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('embedded-sandbox').style.display = 'block';
+          }, 1000);
+        </script>
+    </body>
+    </html>
+    "#)
 }
+
+// 💡 ALTERNATIF: GraphQL Playground (Lebih Stable untuk Forwarding)
+// async fn graphql_playground() -> impl IntoResponse {
+//     Html(async_graphql::http::playground_source(
+//         async_graphql::http::GraphQLPlaygroundConfig::new("/graphql")
+//             .with_setting("editor.theme", "dark")
+//             .with_setting("editor.autocompleteEnabled", false)
+//             .with_setting("request.credentials", "include")
+//     ))
+// }
 
 async fn health_check() -> Response {
     (
@@ -86,23 +144,36 @@ async fn root() -> Html<&'static str> {
                 .endpoints {
                     margin-top: 30px;
                 }
+                .badge {
+                    background: rgba(102, 126, 234, 0.3);
+                    padding: 4px 12px;
+                    border-radius: 12px;
+                    font-size: 12px;
+                    margin-left: 10px;
+                }
             </style>
         </head>
         <body>
             <div class="container">
-                <h1>Toko Online API</h1>
+                <h1>🛒 Toko Online API</h1>
                 <p>Selamat datang di Toko Online GraphQL API!</p>
                 
                 <div class="endpoints">
                     <h3>Available Endpoints:</h3>
                     <div>
-                        <a href="/graphql" target="_blank">GraphQL Playground</a>
-                        <a href="/health" target="_blank">Health Check</a>
+                        <a href="/graphql" target="_blank">
+                            🚀 Apollo Sandbox
+                            <span class="badge">Auto-Detect URL!</span>
+                        </a>
+                        <a href="/health" target="_blank">💚 Health Check</a>
                     </div>
                 </div>
 
                 <div style="margin-top: 30px; font-size: 14px; opacity: 0.8;">
-                    <p>Built with Rust + Axum + SeaORM + async-graphql</p>
+                    <p>Built with Rust 🦀 + Axum + SeaORM + async-graphql</p>
+                    <p style="font-size: 12px; margin-top: 10px;">
+                        Endpoint auto-detects based on your URL ✨
+                    </p>
                 </div>
             </div>
         </body>
@@ -118,35 +189,42 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let config = config::Config::from_env();
     config.validate()?;
 
-    println!("Connecting to database...");
+    println!("🔌 Connecting to database...");
     let pool = db::create_pool(&config.database_url).await?;
-    println!("Database connected!");
+    println!("✅ Database connected!");
 
-    println!("Building GraphQL schema...");
+    println!("🏗️  Building GraphQL schema...");
     let schema = Schema::build(
         schema::QueryRoot,
         schema::MutationRoot,
         EmptySubscription,
     )
     .data(pool.clone())
+    .enable_federation()
     .finish();
-    println!("Schema built!");
+    println!("✅ Schema built!");
 
     let app = Router::new()
         .route("/", get(root))
         .route("/health", get(health_check))
         .route("/graphql", get(graphql_playground).post(graphql_handler))
         .layer(Extension(schema))
-        .layer(CorsLayer::permissive());
+        .layer(
+            CorsLayer::new()
+                .allow_origin(Any)
+                .allow_methods([Method::GET, Method::POST, Method::OPTIONS])
+                .allow_headers(Any)
+        );
 
     let addr = format!("{}:{}", config.server_host, config.server_port);
     let listener = tokio::net::TcpListener::bind(&addr).await?;
 
-    println!("\nServer started successfully!");
-    println!("Address: http://{}", addr);
-    println!("GraphQL Playground: http://{}/graphql", addr);
-    println!("Health Check: http://{}/health", addr);
-    println!("\nPress Ctrl+C to stop the server\n");
+    println!("\n🚀 Server started successfully!");
+    println!("📍 Local: http://{}", addr);
+    println!("🌐 Forwarded: Check VSCode PORTS tab for public URL");
+    println!("🎮 GraphQL Playground: /graphql (auto-detects URL)");
+    println!("💚 Health Check: /health");
+    println!("\n✋ Press Ctrl+C to stop the server\n");
 
     axum::serve(listener, app.into_make_service()).await?;
 
