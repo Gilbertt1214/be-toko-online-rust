@@ -13,6 +13,19 @@ pub struct Model {
     pub method: String,
     pub status: String,
     pub paid_at: Option<NaiveDateTime>,
+    
+    // Xendit Integration Fields
+    pub external_id: Option<String>,        // Order reference ID
+    pub invoice_id: Option<String>,         // Xendit invoice ID
+    pub invoice_url: Option<String>,        // Payment URL for customer
+    pub xendit_status: Option<String>,      // PENDING, PAID, EXPIRED, SETTLED
+    pub payment_channel: Option<String>,    // BCA, OVO, DANA, etc
+    pub paid_amount: Option<f64>,           // Actual amount paid
+    pub payment_method: Option<String>,     // BANK_TRANSFER, EWALLET, CREDIT_CARD
+    pub xendit_fees: Option<f64>,           // Transaction fees
+    pub expiry_date: Option<NaiveDateTime>, // Invoice expiration
+    pub created_at: Option<NaiveDateTime>,
+    pub updated_at: Option<NaiveDateTime>,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]

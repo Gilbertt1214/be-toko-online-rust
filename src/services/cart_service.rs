@@ -1,5 +1,5 @@
 use sea_orm::{
-    ActiveModelTrait, ActiveValue, ColumnTrait, DatabaseConnection, EntityTrait, QueryFilter, Set,
+    ActiveModelTrait, ColumnTrait, DatabaseConnection, EntityTrait, QueryFilter, Set,
 };
 
 use crate::models::{cart, cart_item, prelude::*};
@@ -7,11 +7,12 @@ use crate::models::{cart, cart_item, prelude::*};
 pub struct CartService;
 
 impl CartService {
+    /// Get existing cart or create new one for user
     pub async fn get_or_create_cart(
         db: &DatabaseConnection,
         user_id: i64,
     ) -> Result<cart::Model, String> {
-        // Cek cart yang sudah ada
+        // Check if cart exists
         if let Some(cart) = Cart::find()
             .filter(cart::Column::UserId.eq(user_id))
             .one(db)
@@ -21,7 +22,7 @@ impl CartService {
             return Ok(cart);
         }
 
-        // Validasi user exists
+        // Validate user exists
         let user_exists = User::find_by_id(user_id)
             .one(db)
             .await
@@ -29,10 +30,10 @@ impl CartService {
             .is_some();
 
         if !user_exists {
-            return Err("User tidak ditemukan".to_string());
+            return Err("User not found".to_string());
         }
 
-        // Buat cart baru
+        // Create new cart
         let new_cart = cart::ActiveModel {
             user_id: Set(user_id),
             ..Default::default()
@@ -41,34 +42,35 @@ impl CartService {
         new_cart
             .insert(db)
             .await
-            .map_err(|e| format!("Gagal membuat cart: {}", e))
+            .map_err(|e| format!("Failed to create cart: {}", e))
     }
 
+    /// Add item to cart or update quantity if exists
     pub async fn add_item(
         db: &DatabaseConnection,
         user_id: i64,
         product_id: i64,
         quantity: i32,
     ) -> Result<cart_item::Model, String> {
-        // Validasi produk
+        // Validate product
         let product = Product::find_by_id(product_id)
             .one(db)
             .await
             .map_err(|e| format!("Database error: {}", e))?
-            .ok_or("Produk tidak ditemukan")?;
+            .ok_or("Product not found")?;
 
         if !product.is_active.unwrap_or(false) {
-            return Err("Produk tidak tersedia".to_string());
+            return Err("Product is not available".to_string());
         }
 
         if product.stock < quantity {
-            return Err("Stok tidak mencukupi".to_string());
+            return Err("Insufficient stock".to_string());
         }
 
         // Get or create cart
         let cart = Self::get_or_create_cart(db, user_id).await?;
 
-        // Cek item sudah ada?
+        // Check if item already exists in cart
         if let Some(existing_item) = CartItem::find()
             .filter(cart_item::Column::CartId.eq(cart.id))
             .filter(cart_item::Column::ProductId.eq(product_id))
@@ -76,20 +78,23 @@ impl CartService {
             .await
             .map_err(|e| format!("Database error: {}", e))?
         {
-            // PERBAIKAN: Cara yang benar untuk mengakses nilai dari ActiveModel
-            let current_qty = existing_item.quantity; // Ambil dari Model, bukan ActiveModel
+            let current_qty = existing_item.quantity;
             let new_quantity = current_qty + quantity;
-            
+
+            if product.stock < new_quantity {
+                return Err("Insufficient stock".to_string());
+            }
+
             let mut active: cart_item::ActiveModel = existing_item.into();
             active.quantity = Set(new_quantity);
 
             return active
                 .update(db)
                 .await
-                .map_err(|e| format!("Gagal update cart: {}", e));
+                .map_err(|e| format!("Failed to update cart: {}", e));
         }
 
-        // Buat item baru
+        // Create new item
         let new_item = cart_item::ActiveModel {
             cart_id: Set(cart.id),
             product_id: Set(Some(product_id)),
@@ -100,9 +105,10 @@ impl CartService {
         new_item
             .insert(db)
             .await
-            .map_err(|e| format!("Gagal menambah item: {}", e))
+            .map_err(|e| format!("Failed to add item: {}", e))
     }
 
+    /// Update cart item quantity
     pub async fn update_item_quantity(
         db: &DatabaseConnection,
         item_id: i64,
@@ -124,16 +130,16 @@ impl CartService {
             return Ok(None);
         };
 
-        // Validasi stok
+        // Validate stock
         if let Some(product_id) = item.product_id {
             let product = Product::find_by_id(product_id)
                 .one(db)
                 .await
                 .map_err(|e| format!("Database error: {}", e))?
-                .ok_or("Produk tidak ditemukan")?;
+                .ok_or("Product not found")?;
 
             if product.stock < quantity {
-                return Err("Stok tidak mencukupi".to_string());
+                return Err("Insufficient stock".to_string());
             }
         }
 
@@ -144,9 +150,10 @@ impl CartService {
             .update(db)
             .await
             .map(Some)
-            .map_err(|e| format!("Gagal update quantity: {}", e))
+            .map_err(|e| format!("Failed to update quantity: {}", e))
     }
 
+    /// Remove item from cart
     pub async fn remove_item(db: &DatabaseConnection, item_id: i64) -> Result<bool, String> {
         let res = CartItem::delete_by_id(item_id)
             .exec(db)
@@ -155,18 +162,37 @@ impl CartService {
 
         Ok(res.rows_affected > 0)
     }
-    // Tambahkan method ini di impl CartService
 
-pub async fn get_cart_items(
-    db: &DatabaseConnection,
-    user_id: i64,
-) -> Result<Vec<cart_item::Model>, String> {
-    let cart = Self::get_or_create_cart(db, user_id).await?;
-    
-    CartItem::find()
-        .filter(cart_item::Column::CartId.eq(cart.id))
-        .all(db)
-        .await
-        .map_err(|e| format!("Database error: {}", e))
-}
+    /// Get all cart items for a user
+    pub async fn get_cart_items(
+        db: &DatabaseConnection,
+        user_id: i64,
+    ) -> Result<Vec<cart_item::Model>, String> {
+        let cart = Self::get_or_create_cart(db, user_id).await?;
+
+        CartItem::find()
+            .filter(cart_item::Column::CartId.eq(cart.id))
+            .all(db)
+            .await
+            .map_err(|e| format!("Database error: {}", e))
+    }
+
+    /// Clear all items from user's cart
+    pub async fn clear_cart(db: &DatabaseConnection, user_id: i64) -> Result<bool, String> {
+        let cart = Self::get_or_create_cart(db, user_id).await?;
+
+        let res = CartItem::delete_many()
+            .filter(cart_item::Column::CartId.eq(cart.id))
+            .exec(db)
+            .await
+            .map_err(|e| format!("Database error: {}", e))?;
+
+        Ok(res.rows_affected > 0)
+    }
+
+    /// Get cart item count for user
+    pub async fn get_cart_count(db: &DatabaseConnection, user_id: i64) -> Result<usize, String> {
+        let items = Self::get_cart_items(db, user_id).await?;
+        Ok(items.len())
+    }
 }

@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Toko Online NUVELLA - GraphQL API</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            min-height: 100vh;
+            background: #0f172a;
+            color: #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+        }
+        
+        .container {
+            max-width: 520px;
+            width: 100%;
+            text-align: center;
+        }
+        
+        .header {
+            margin-bottom: 50px;
+        }
+        
+        .logo {
+            font-size: 32px;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 12px;
+            letter-spacing: -0.5px;
+        }
+        
+        .subtitle {
+            font-size: 15px;
+            color: #94a3b8;
+            font-weight: 400;
+            line-height: 1.5;
+        }
+        
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 20px;
+            padding: 8px 16px;
+            background: rgba(16, 185, 129, 0.15);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 500;
+            color: #10b981;
+        }
+        
+        .status-dot {
+            width: 6px;
+            height: 6px;
+            background: #10b981;
+            border-radius: 50%;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .section {
+            margin: 40px 0;
+        }
+        
+        .section-title {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            color: #64748b;
+            margin-bottom: 16px;
+            font-weight: 600;
+            text-align: left;
+        }
+        
+        .endpoint-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .endpoint-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 20px;
+            background: #1e293b;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            text-decoration: none;
+            color: inherit;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .endpoint-item:hover {
+            background: #334155;
+            border-color: rgba(255, 255, 255, 0.15);
+            transform: translateY(-2px);
+        }
+        
+        .endpoint-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-align: left;
+        }
+        
+        .endpoint-icon {
+            font-size: 18px;
+            width: 24px;
+            text-align: center;
+        }
+        
+        .endpoint-name {
+            font-weight: 500;
+            font-size: 15px;
+            color: #f1f5f9;
+        }
+        
+        .badge {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .badge.primary {
+            background: rgba(99, 102, 241, 0.2);
+            color: #818cf8;
+        }
+
+        .badge.success {
+            background: rgba(16, 185, 129, 0.2);
+            color: #34d399;
+        }
+
+        .badge.error {
+            background: rgba(239, 68, 68, 0.2);
+            color: #f87171;
+        }
+
+        .loading-dot {
+            animation: blink 1.4s ease-in-out infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+        
+        .footer {
+            margin-top: 50px;
+            padding-top: 30px;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        
+        .tech-stack {
+            color: #64748b;
+            font-size: 13px;
+            line-height: 1.8;
+        }
+        
+        @media (max-width: 640px) {
+            .container {
+                max-width: 100%;
+            }
+
+            .logo {
+                font-size: 28px;
+            }
+
+            .subtitle {
+                font-size: 14px;
+            }
+
+            .endpoint-item {
+                padding: 14px 16px;
+            }
+
+            .endpoint-name {
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">Toko Online NUVELLA</div>
+            <p class="subtitle">GraphQL API untuk sistem e-commerce modern</p>
+            <div class="status-badge">
+                <span class="status-dot"></span>
+                <span>Server Online</span>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h3 class="section-title">Available Endpoints</h3>
+            <div class="endpoint-list">
+                <a href="/graphql" class="endpoint-item" target="_blank">
+                    <div class="endpoint-left">
+                        <span class="endpoint-icon">🚀</span>
+                        <span class="endpoint-name">Apollo Sandbox</span>
+                    </div>
+                    <span class="badge primary">Auto-Detect</span>
+                </a>
+                
+                <a href="/health" class="endpoint-item" target="_blank">
+                    <div class="endpoint-left">
+                        <span class="endpoint-icon">💚</span>
+                        <span class="endpoint-name">Health Check</span>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        <div class="section">
+            <h3 class="section-title">Payment Integration</h3>
+            <div class="endpoint-list">
+                <div class="endpoint-item" id="xendit-status">
+                    <div class="endpoint-left">
+                        <span class="endpoint-icon">💳</span>
+                        <span class="endpoint-name">Xendit Payment Gateway</span>
+                    </div>
+                    <span class="badge success" id="xendit-badge">
+                        <span class="loading-dot">●</span>
+                    </span>
+                </div>
+                
+                <a href="/webhook/xendit" class="endpoint-item" id="webhook-status" target="_blank">
+                    <div class="endpoint-left">
+                        <span class="endpoint-icon">🔔</span>
+                        <span class="endpoint-name">Webhook Handler</span>
+                    </div>
+                    <span class="badge success" id="webhook-badge">
+                        <span class="loading-dot">●</span>
+                    </span>
+                </a>
+            </div>
+        </div>
+
+        <div class="footer">
+            <div class="tech-stack">
+                Built with Rust + Axum + SeaORM + async-graphql + Xendit
+            </div>
+            <p style="margin-top: 12px; font-size: 12px; color: #475569;">
+                Endpoint auto-detects based on your URL
+            </p>
+        </div>
+    </div>
+
+    <script>
+        async function checkXenditStatus() {
+            try {
+                const response = await fetch('/api/status/xendit');
+                const data = await response.json();
+                
+                const badge = document.getElementById('xendit-badge');
+                const card = document.getElementById('xendit-status');
+                
+                if (data.status === 'active') {
+                    badge.textContent = 'Active';
+                    badge.className = 'badge success';
+                    card.style.borderColor = 'rgba(16, 185, 129, 0.3)';
+                } else {
+                    badge.textContent = 'Inactive';
+                    badge.className = 'badge error';
+                    card.style.borderColor = 'rgba(239, 68, 68, 0.3)';
+                }
+                
+                if (data.mode) {
+                    badge.textContent += ` (${data.mode})`;
+                }
+            } catch (error) {
+                console.error('Error checking Xendit status:', error);
+                const badge = document.getElementById('xendit-badge');
+                badge.textContent = 'Error';
+                badge.className = 'badge error';
+            }
+        }
+
+        async function checkWebhookStatus() {
+            try {
+                const response = await fetch('/api/status/webhook');
+                const data = await response.json();
+                
+                const badge = document.getElementById('webhook-badge');
+                const card = document.getElementById('webhook-status');
+                
+                if (data.status === 'ready') {
+                    badge.textContent = 'Ready';
+                    badge.className = 'badge success';
+                    card.style.borderColor = 'rgba(16, 185, 129, 0.3)';
+                } else {
+                    badge.textContent = 'Not Ready';
+                    badge.className = 'badge error';
+                    card.style.borderColor = 'rgba(239, 68, 68, 0.3)';
+                }
+            } catch (error) {
+                console.error('Error checking webhook status:', error);
+                const badge = document.getElementById('webhook-badge');
+                badge.textContent = 'Error';
+                badge.className = 'badge error';
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            checkXenditStatus();
+            checkWebhookStatus();
+            
+            setInterval(() => {
+                checkXenditStatus();
+                checkWebhookStatus();
+            }, 30000);
+        });
+    </script>
+</body>
+</html>

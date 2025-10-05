@@ -8,7 +8,7 @@ use crate::models::{cart, cart_item, order, order_item, product, prelude::*};
 pub struct OrderService;
 
 impl OrderService {
-    pub async fn create_from_cart(
+    pub async fn create_from_cart( 
         db: &DatabaseConnection,
         user_id: i64,
     ) -> Result<order::Model, String> {
@@ -128,33 +128,89 @@ impl OrderService {
 
         Ok(())
     }
-    // Tambahkan method ini di impl OrderService
 
-pub async fn get_user_orders(
-    db: &DatabaseConnection,
-    user_id: i64,
-) -> Result<Vec<order::Model>, String> {
-    Order::find()
-        .filter(order::Column::UserId.eq(user_id))
-        .all(db)
-        .await
-        .map_err(|e| format!("Database error: {}", e))
-}
+    /// Get order by ID (konsisten dengan service lain)
+    pub async fn get_by_id(
+        db: &DatabaseConnection,
+        order_id: i64,
+    ) -> Result<Option<order::Model>, String> {
+        Order::find_by_id(order_id)
+            .one(db)
+            .await
+            .map_err(|e| format!("Database error: {}", e))
+    }
 
-pub async fn get_order_by_id(
-    db: &DatabaseConnection,
-    order_id: i64,
-) -> Result<Option<order::Model>, String> {
-    Order::find_by_id(order_id)
-        .one(db)
-        .await
-        .map_err(|e| format!("Database error: {}", e))
-}
+    /// Get all orders for a user
+    pub async fn get_user_orders(
+        db: &DatabaseConnection,
+        user_id: i64,
+    ) -> Result<Vec<order::Model>, String> {
+        Order::find()
+            .filter(order::Column::UserId.eq(user_id))
+            .all(db)
+            .await
+            .map_err(|e| format!("Database error: {}", e))
+    }
 
-pub async fn get_all_orders(db: &DatabaseConnection) -> Result<Vec<order::Model>, String> {
-    Order::find()
-        .all(db)
-        .await
-        .map_err(|e| format!("Database error: {}", e))
-}
+    /// Get all orders (admin only)
+    pub async fn get_all_orders(
+        db: &DatabaseConnection,
+    ) -> Result<Vec<order::Model>, String> {
+        Order::find()
+            .all(db)
+            .await
+            .map_err(|e| format!("Database error: {}", e))
+    }
+
+    /// Update order status
+    pub async fn update_status(
+        db: &DatabaseConnection,
+        order_id: i64,
+        new_status: String,
+    ) -> Result<Option<order::Model>, String> {
+        let order = Order::find_by_id(order_id)
+            .one(db)
+            .await
+            .map_err(|e| format!("Database error: {}", e))?;
+
+        if let Some(order) = order {
+            let mut order_active: order::ActiveModel = order.into();
+            order_active.status = Set(new_status);
+
+            let updated = order_active
+                .update(db)
+                .await
+                .map_err(|e| format!("Failed to update order: {}", e))?;
+
+            Ok(Some(updated))
+        } else {
+            Ok(None)
+        }
+    }
+
+    /// Get order items (needed for payment invoice)
+    pub async fn get_order_items(
+        db: &DatabaseConnection,
+        order_id: i64,
+    ) -> Result<Vec<order_item::Model>, String> {
+        OrderItem::find()
+            .filter(order_item::Column::OrderId.eq(order_id))
+            .all(db)
+            .await
+            .map_err(|e| format!("Database error: {}", e))
+    }
+
+    /// Check if user owns this order
+    pub async fn check_ownership(
+        db: &DatabaseConnection,
+        order_id: i64,
+        user_id: i64,
+    ) -> Result<bool, String> {
+        let order = Order::find_by_id(order_id)
+            .one(db)
+            .await
+            .map_err(|e| format!("Database error: {}", e))?;
+
+        Ok(order.map(|o| o.user_id == user_id).unwrap_or(false))
+    }
 }

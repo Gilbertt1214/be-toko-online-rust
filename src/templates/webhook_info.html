@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Xendit Webhook Endpoint - NUVELLA</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            background: #0f172a;
+            color: #e2e8f0;
+            line-height: 1.6;
+        }
+        h1 {
+            color: #ffffff;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+        h2 {
+            color: #ffffff;
+            margin-top: 30px;
+            margin-bottom: 15px;
+            font-size: 20px;
+            border-bottom: 2px solid #334155;
+            padding-bottom: 8px;
+        }
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            background: rgba(16, 185, 129, 0.2);
+            color: #34d399;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+        .info-box {
+            background: #1e293b;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border: 1px solid #334155;
+        }
+        .code {
+            background: #1e293b;
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+            border: 1px solid #334155;
+            margin: 10px 0;
+        }
+        code {
+            color: #94a3b8;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+        }
+        ul {
+            margin: 10px 0;
+            padding-left: 25px;
+        }
+        li {
+            margin: 8px 0;
+            color: #cbd5e1;
+        }
+        a {
+            color: #6366f1;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        .method {
+            display: inline-block;
+            padding: 2px 8px;
+            background: rgba(239, 68, 68, 0.2);
+            color: #f87171;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-right: 8px;
+        }
+        .header-name {
+            color: #6366f1;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔔 Xendit Webhook Endpoint</h1>
+    <span class="badge">Active</span>
+    
+    <div class="info-box">
+        <p><strong>This endpoint receives payment notifications from Xendit.</strong></p>
+        <p>It is automatically called by Xendit when payment status changes.</p>
+    </div>
+    
+    <h2>Endpoint Details</h2>
+    <ul>
+        <li><strong>URL:</strong> <code>/webhook/xendit</code></li>
+        <li><strong>Method:</strong> <span class="method">POST</span> only</li>
+        <li><strong>Content-Type:</strong> application/json</li>
+        <li><strong>Authentication:</strong> x-callback-token header</li>
+    </ul>
+    
+    <h2>Testing with cURL</h2>
+    <div class="code">
+        <code>curl -X POST http://127.0.0.1:8000/webhook/xendit \<br>
+  -H "Content-Type: application/json" \<br>
+  -H "x-callback-token: your_webhook_token" \<br>
+  -d '{<br>
+    "id": "test-invoice-123",<br>
+    "external_id": "ORDER-1",<br>
+    "status": "PAID",<br>
+    "amount": 150000,<br>
+    "paid_amount": 150000,<br>
+    "payment_channel": "OVO",<br>
+    "payment_method": "EWALLET"<br>
+  }'</code>
+    </div>
+    
+    <h2>Required Headers</h2>
+    <ul>
+        <li><span class="header-name">Content-Type:</span> application/json</li>
+        <li><span class="header-name">x-callback-token:</span> Your Xendit webhook token (from .env)</li>
+    </ul>
+    
+    <h2>Payload Format</h2>
+    <div class="code">
+        <code>{<br>
+  "id": "string",              // Xendit invoice ID<br>
+  "external_id": "ORDER-123",  // Your order reference<br>
+  "status": "PAID",            // Payment status<br>
+  "amount": 150000,            // Total amount in IDR<br>
+  "paid_amount": 150000,       // Actually paid amount<br>
+  "payment_channel": "OVO",    // Payment channel<br>
+  "payment_method": "EWALLET"  // Payment method<br>
+}</code>
+    </div>
+    
+    <h2>Payment Status Values</h2>
+    <ul>
+        <li><strong>PENDING</strong> - Payment awaiting completion</li>
+        <li><strong>PAID</strong> - Payment successful</li>
+        <li><strong>SETTLED</strong> - Payment settled</li>
+        <li><strong>EXPIRED</strong> - Payment expired</li>
+        <li><strong>FAILED</strong> - Payment failed</li>
+    </ul>
+    
+    <h2>Response Format</h2>
+    <div class="info-box">
+        <strong>Success (200 OK):</strong>
+        <div class="code" style="margin-top: 10px;">
+            <code>{<br>
+  "success": true,<br>
+  "message": "Webhook processed successfully",<br>
+  "data": {<br>
+    "payment_id": 1,<br>
+    "payment_status": "paid",<br>
+    "order_status": "paid"<br>
+  }<br>
+}</code>
+        </div>
+    </div>
+    
+    <div class="info-box">
+        <strong>Error (401 Unauthorized):</strong>
+        <div class="code" style="margin-top: 10px;">
+            <code>{<br>
+  "success": false,<br>
+  "message": "Invalid webhook token"<br>
+}</code>
+        </div>
+    </div>
+    
+    <h2>Configuration</h2>
+    <p>Set the webhook URL in your Xendit Dashboard:</p>
+    <div class="code">
+        <code>https://yourdomain.com/webhook/xendit</code>
+    </div>
+    
+    <p style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #334155;">
+        <a href="/">← Back to Home</a> | 
+        <a href="/health">Health Check</a> | 
+        <a href="/graphql">GraphQL Playground</a>
+    </p>
+</body>
+</html>

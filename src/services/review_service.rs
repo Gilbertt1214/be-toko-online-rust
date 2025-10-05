@@ -2,12 +2,12 @@ use sea_orm::{
     ActiveModelTrait, ColumnTrait, DatabaseConnection, EntityTrait, QueryFilter, Set,
 };
 
-use crate::models::{review, prelude::Review};
+use crate::models::{prelude::Review, review};
 
 pub struct ReviewService;
 
 impl ReviewService {
-    /// Buat review baru
+    /// Create new review
     pub async fn create_review(
         db: &DatabaseConnection,
         user_id: i64,
@@ -15,9 +15,8 @@ impl ReviewService {
         rating: i32,
         comment: Option<String>,
     ) -> Result<review::Model, String> {
-        // Validasi rating (1-5)
         if !(1..=5).contains(&rating) {
-            return Err("Rating harus antara 1-5".to_string());
+            return Err("Rating must be between 1-5".to_string());
         }
 
         let new_review = review::ActiveModel {
@@ -31,11 +30,22 @@ impl ReviewService {
         new_review
             .insert(db)
             .await
-            .map_err(|e| format!("Gagal membuat review: {}", e))
+            .map_err(|e| format!("Failed to create review: {}", e))
     }
 
-    /// Ambil semua review berdasarkan product_id
-    pub async fn get_reviews_by_product(
+    /// Get review by ID
+    pub async fn get_by_id(
+        db: &DatabaseConnection,
+        review_id: i64,
+    ) -> Result<Option<review::Model>, String> {
+        Review::find_by_id(review_id)
+            .one(db)
+            .await
+            .map_err(|e| format!("Database error: {}", e))
+    }
+
+    /// Get all reviews for a product
+    pub async fn get_by_product(
         db: &DatabaseConnection,
         product_id: i64,
     ) -> Result<Vec<review::Model>, String> {
@@ -46,25 +56,28 @@ impl ReviewService {
             .map_err(|e| format!("Database error: {}", e))
     }
 
-    /// Ambil review berdasarkan id
-    pub async fn get_review_by_id(
-        db: &DatabaseConnection,
-        review_id: i64,
-    ) -> Result<Option<review::Model>, String> {
-        Review::find_by_id(review_id)
-            .one(db)
-            .await
-            .map_err(|e| format!("Database error: {}", e))
-    }
-
-    /// Ambil semua review dari user tertentu
-    pub async fn get_reviews_by_user(
+    /// Get all reviews by a user
+    pub async fn get_by_user(
         db: &DatabaseConnection,
         user_id: i64,
     ) -> Result<Vec<review::Model>, String> {
         Review::find()
             .filter(review::Column::UserId.eq(user_id))
             .all(db)
+            .await
+            .map_err(|e| format!("Database error: {}", e))
+    }
+
+    /// Get user's review for a specific product
+    pub async fn get_user_review(
+        db: &DatabaseConnection,
+        user_id: i64,
+        product_id: i64,
+    ) -> Result<Option<review::Model>, String> {
+        Review::find()
+            .filter(review::Column::UserId.eq(user_id))
+            .filter(review::Column::ProductId.eq(product_id))
+            .one(db)
             .await
             .map_err(|e| format!("Database error: {}", e))
     }
@@ -88,7 +101,7 @@ impl ReviewService {
 
         if let Some(r) = rating {
             if !(1..=5).contains(&r) {
-                return Err("Rating harus antara 1-5".to_string());
+                return Err("Rating must be between 1-5".to_string());
             }
             active.rating = Set(r);
         }
@@ -101,14 +114,11 @@ impl ReviewService {
             .update(db)
             .await
             .map(Some)
-            .map_err(|e| format!("Gagal update review: {}", e))
+            .map_err(|e| format!("Failed to update review: {}", e))
     }
 
-    /// Hapus review
-    pub async fn delete_review(
-        db: &DatabaseConnection,
-        review_id: i64,
-    ) -> Result<bool, String> {
+    /// Delete review
+    pub async fn delete_review(db: &DatabaseConnection, review_id: i64) -> Result<bool, String> {
         let res = Review::delete_by_id(review_id)
             .exec(db)
             .await
@@ -117,12 +127,12 @@ impl ReviewService {
         Ok(res.rows_affected > 0)
     }
 
-    /// Hitung rata-rata rating untuk produk
+    /// Calculate average rating for a product
     pub async fn get_average_rating(
         db: &DatabaseConnection,
         product_id: i64,
     ) -> Result<f64, String> {
-        let reviews = Self::get_reviews_by_product(db, product_id).await?;
+        let reviews = Self::get_by_product(db, product_id).await?;
 
         if reviews.is_empty() {
             return Ok(0.0);
@@ -132,5 +142,14 @@ impl ReviewService {
         let average = total as f64 / reviews.len() as f64;
 
         Ok(average)
+    }
+
+    /// Get review count for a product
+    pub async fn get_review_count(
+        db: &DatabaseConnection,
+        product_id: i64,
+    ) -> Result<usize, String> {
+        let reviews = Self::get_by_product(db, product_id).await?;
+        Ok(reviews.len())
     }
 }

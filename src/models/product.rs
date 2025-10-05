@@ -10,6 +10,7 @@ pub struct Model {
     pub id: i64,
     pub name: String,
     pub slug: String,
+    pub short_description: Option<String>,
     pub description: Option<String>,
     pub price: BigDecimal,
     pub stock: i32,

@@ -626,7 +626,7 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 **Gilbertt1214**
 
 [![GitHub](https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white)](https://github.com/Gilbertt1214)
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white)](#)
+[![LinkedIn](https://www.linkedin.com/in/fahriana-nurzukhruf-45986a308/)](#)
 
 *Building the future of e-commerce with Rust* 🦀
 

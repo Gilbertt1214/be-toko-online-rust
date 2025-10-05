@@ -1,5 +1,6 @@
 // src/models/prelude.rs
 pub use super::cart::Entity as Cart;
+pub use super::cart::Model as CartModel;
 pub use super::cart_item::Entity as CartItem;
 pub use super::category::Entity as Category;           // Tambahkan ini
 pub use super::order::Entity as Order;
