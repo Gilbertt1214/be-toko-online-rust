@@ -146,6 +146,24 @@ impl From<cart_item::Model> for CartItemGraphQL {
     }
 }
 
+// category GraphQL Type
+#[derive(SimpleObject)]
+pub struct CategoryGraphQL {
+    pub id: i64,
+    pub name: String,
+    pub slug: String,
+}
+impl From<crate::models::category::Model> for CategoryGraphQL {
+    fn from(model: crate::models::category::Model) -> Self {
+        Self {
+            id: model.id,
+            name: model.name,
+            slug: model.slug,
+        }
+    }
+}
+
+
 // Review GraphQL Type
 #[derive(SimpleObject)]
 pub struct ReviewGraphQL {
@@ -318,6 +336,25 @@ impl ProductWithRatingGraphQL {
     }
 }
 
+// Category
+#[derive(SimpleObject)]
+pub struct CategoryWithProductsGraphQL {
+    pub id: i64,
+    pub name: String,
+    pub slug: String,
+    pub products: Vec<ProductGraphQL>,
+}
+impl From<crate::models::category::Model> for CategoryWithProductsGraphQL {
+    fn from(model: crate::models::category::Model) -> Self {
+        Self {
+            id: model.id,
+            name: model.name,
+            slug: model.slug,
+            products: vec![], 
+        }
+    }
+}
+
 // Cart Item dengan Product Detail
 #[derive(SimpleObject)]
 pub struct CartItemWithProductGraphQL {
@@ -364,4 +401,37 @@ impl From<product::Model> for ProductSummaryGraphQL {
             is_active: model.is_active,
         }
     }
+}
+#[derive(SimpleObject)]
+pub struct AuthResponse {
+    pub token: String,
+    pub user: user::Model,
+}
+
+#[derive(SimpleObject)]
+pub struct PaymentInvoiceResponse {
+    pub invoice_id: String,
+    pub external_id: String,
+    pub invoice_url: String,
+    pub amount: f64,
+    pub status: String,
+    pub expiry_date: String,
+}
+
+#[derive(SimpleObject)]
+pub struct PaymentStatusResponse {
+    pub invoice_id: String,
+    pub external_id: String,
+    pub status: String,
+    pub amount: f64,
+    pub paid_amount: f64,
+}
+#[derive(SimpleObject)]
+pub struct OrderItemResponse {
+    pub id: i64,
+    pub order_id: i64,
+    pub product_id: Option<i64>,
+    pub price: f64,
+    pub quantity: i32,
+    pub subtotal: Option<f64>,
 }

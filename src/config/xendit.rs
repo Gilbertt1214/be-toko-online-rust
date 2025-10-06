@@ -47,9 +47,9 @@ impl XenditConfig {
     }
 
     /// Get API key untuk beberapa endpoint yang memerlukan format berbeda
-    pub fn get_api_key(&self) -> &str {
-        &self.secret_key
-    }
+    // pub fn get_api_key(&self) -> &str {
+    //     &self.secret_key
+    // }
 
     /// Validate konfigurasi Xendit
     pub fn validate(&self) -> Result<(), String> {

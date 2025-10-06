@@ -14,7 +14,7 @@ use axum::{
     extract::Extension,
     http::{Method, StatusCode},
     response::{Html, IntoResponse, Response},
-    routing::{get, post},
+    routing::{get},
     Json, Router,
 };
 use async_graphql::{EmptySubscription, Schema};
@@ -170,9 +170,6 @@ fn print_server_info(addr: &str) {
     println!("🚀 Server started successfully!");
     println!("========================================");
     println!("📍 Local:    http://{}", addr);
-    println!("🔧 GraphQL:  http://{}/graphql", addr);
-    println!("💚 Health:   http://{}/health", addr);
-    println!("🔔 Webhook:  http://{}/webhook/xendit", addr);
     println!("========================================");
     println!("📋 Commands:");
     println!("   - Seeder: cargo run seed");

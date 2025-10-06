@@ -109,49 +109,49 @@ impl CartService {
     }
 
     /// Update cart item quantity
-    pub async fn update_item_quantity(
-        db: &DatabaseConnection,
-        item_id: i64,
-        quantity: i32,
-    ) -> Result<Option<cart_item::Model>, String> {
-        if quantity <= 0 {
-            CartItem::delete_by_id(item_id)
-                .exec(db)
-                .await
-                .map_err(|e| format!("Database error: {}", e))?;
-            return Ok(None);
-        }
+pub async fn update_item_quantity(
+    db: &DatabaseConnection,
+    item_id: i64,
+    quantity: i32,
+) -> Result<Option<cart_item::Model>, String> {
+    if quantity <= 0 {
+        CartItem::delete_by_id(item_id)
+            .exec(db)
+            .await
+            .map_err(|e| format!("Database error: {}", e))?;
+        return Ok(None);
+    }
 
-        let Some(item) = CartItem::find_by_id(item_id)
+    let Some(item) = CartItem::find_by_id(item_id)
+        .one(db)
+        .await
+        .map_err(|e| format!("Database error: {}", e))?
+    else {
+        return Ok(None);
+    };
+
+    // Validate stock
+    if let Some(product_id) = item.product_id {
+        let product = Product::find_by_id(product_id)
             .one(db)
             .await
             .map_err(|e| format!("Database error: {}", e))?
-        else {
-            return Ok(None);
-        };
+            .ok_or("Product not found")?;
 
-        // Validate stock
-        if let Some(product_id) = item.product_id {
-            let product = Product::find_by_id(product_id)
-                .one(db)
-                .await
-                .map_err(|e| format!("Database error: {}", e))?
-                .ok_or("Product not found")?;
-
-            if product.stock < quantity {
-                return Err("Insufficient stock".to_string());
-            }
+        if product.stock < quantity {
+            return Err("Insufficient stock".to_string());
         }
-
-        let mut active: cart_item::ActiveModel = item.into();
-        active.quantity = Set(quantity);
-
-        active
-            .update(db)
-            .await
-            .map(Some)
-            .map_err(|e| format!("Failed to update quantity: {}", e))
     }
+
+    let mut active: cart_item::ActiveModel = item.into();
+    active.quantity = Set(quantity);
+
+    active
+        .update(db)
+        .await
+        .map(Some)
+        .map_err(|e| format!("Failed to update quantity: {}", e))
+}
 
     /// Remove item from cart
     pub async fn remove_item(db: &DatabaseConnection, item_id: i64) -> Result<bool, String> {

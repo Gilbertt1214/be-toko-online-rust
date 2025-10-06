@@ -1,8 +1,16 @@
 use async_graphql::{Context, Object, Result};
 use sea_orm::DatabaseConnection;
+use bigdecimal::ToPrimitive;
 use crate::services::{UserService, OrderService, PaymentService, ProductService, CartService, ReviewService};
-use crate::graphql::graphql_types::{UserGraphQL, OrderGraphQL, PaymentGraphQL, ProductGraphQL, CartItemGraphQL, ReviewGraphQL};
+use crate::graphql::graphql_types::{
+    UserGraphQL, OrderGraphQL, PaymentGraphQL, ProductGraphQL, 
+    CartItemGraphQL, ReviewGraphQL, CartItemWithProductGraphQL,
+    OrderItemGraphQL, CategoryGraphQL, ProductDetailGraphQL,
+    ReviewDetailGraphQL, UserDetailGraphQL, ProductWithRatingGraphQL,
+    CategoryWithProductsGraphQL, OrderWithItemsGraphQL, ProductSummaryGraphQL
+};
 
+#[derive(Default)]
 pub struct QueryRoot;
 
 #[Object]
@@ -23,6 +31,20 @@ impl QueryRoot {
         Ok(user.map(UserGraphQL::from))
     }
 
+    /// Get user detail by ID (extended info)
+    async fn user_detail(&self, ctx: &Context<'_>, id: i64) -> Result<Option<UserDetailGraphQL>> {
+        let db = ctx.data::<DatabaseConnection>()?;
+        let user = UserService::get_by_id(db, id).await?;
+        Ok(user.map(UserDetailGraphQL::from))
+    }
+
+    /// Get user by email
+    async fn user_by_email(&self, ctx: &Context<'_>, email: String) -> Result<Option<UserGraphQL>> {
+        let db = ctx.data::<DatabaseConnection>()?;
+        let user = UserService::get_by_email(db, &email).await?;
+        Ok(user.map(UserGraphQL::from))
+    }
+
     // ==================== PRODUCT QUERIES ====================
 
     /// Get all products
@@ -37,6 +59,72 @@ impl QueryRoot {
         let db = ctx.data::<DatabaseConnection>()?;
         let product = ProductService::get_by_id(db, id).await?;
         Ok(product.map(ProductGraphQL::from))
+    }
+
+    /// Get product detail by ID (extended info)
+    async fn product_detail(&self, ctx: &Context<'_>, id: i64) -> Result<Option<ProductDetailGraphQL>> {
+        let db = ctx.data::<DatabaseConnection>()?;
+        let product = ProductService::get_by_id(db, id).await?;
+        Ok(product.map(ProductDetailGraphQL::from))
+    }
+
+    /// Get product summary by ID (minimal info for listings)
+    async fn product_summary(&self, ctx: &Context<'_>, id: i64) -> Result<Option<ProductSummaryGraphQL>> {
+        let db = ctx.data::<DatabaseConnection>()?;
+        let product = ProductService::get_by_id(db, id).await?;
+        Ok(product.map(ProductSummaryGraphQL::from))
+    }
+
+    /// Get product with rating info
+    async fn product_with_rating(&self, ctx: &Context<'_>, id: i64) -> Result<Option<ProductWithRatingGraphQL>> {
+        let db = ctx.data::<DatabaseConnection>()?;
+        let product = ProductService::get_by_id(db, id).await?;
+        
+        if let Some(product) = product {
+            let average_rating = ReviewService::get_average_rating(db, id).await?;
+            let review_count = ReviewService::get_review_count(db, id).await?;
+            Ok(Some(ProductWithRatingGraphQL::from_product_with_rating(
+                product,
+                average_rating,
+                review_count,
+            )))
+        } else {
+            Ok(None)
+        }
+    }
+
+    /// Get all products with ratings
+    async fn products_with_ratings(&self, ctx: &Context<'_>) -> Result<Vec<ProductWithRatingGraphQL>> {
+        let db = ctx.data::<DatabaseConnection>()?;
+        let products = ProductService::get_all(db).await?;
+        
+        let mut result = Vec::new();
+        for product in products {
+            let average_rating = ReviewService::get_average_rating(db, product.id).await?;
+            let review_count = ReviewService::get_review_count(db, product.id).await?;
+            result.push(ProductWithRatingGraphQL::from_product_with_rating(
+                product,
+                average_rating,
+                review_count,
+            ));
+        }
+        
+        Ok(result)
+    }
+
+    /// Get product summaries (for listing pages)
+    async fn product_summaries(
+        &self,
+        ctx: &Context<'_>,
+        #[graphql(default = true)] active_only: bool
+    ) -> Result<Vec<ProductSummaryGraphQL>> {
+        let db = ctx.data::<DatabaseConnection>()?;
+        let products = if active_only {
+            ProductService::get_active(db).await?
+        } else {
+            ProductService::get_all(db).await?
+        };
+        Ok(products.into_iter().map(ProductSummaryGraphQL::from).collect())
     }
 
     /// Get product by slug
@@ -207,6 +295,53 @@ impl QueryRoot {
         Ok(products.into_iter().map(ProductGraphQL::from).collect())
     }
 
+    // ===================== CATEGORY QUERIES ====================
+    
+    /// Get all categories
+    async fn categories(&self, ctx: &Context<'_>) -> Result<Vec<CategoryGraphQL>> {
+        let db = ctx.data::<DatabaseConnection>()?;
+        let categories = crate::services::CategoryService::get_all_categories(db).await?;
+        Ok(categories.into_iter().map(CategoryGraphQL::from).collect())
+    }
+    
+    /// Get category by ID
+    async fn category(&self, ctx: &Context<'_>, id: i32) -> Result<Option<CategoryGraphQL>> {
+        let db = ctx.data::<DatabaseConnection>()?;
+        let category = crate::services::CategoryService::get_category_by_id(db, id).await?;
+        Ok(category.map(CategoryGraphQL::from))
+    }
+
+    /// Get category with products
+    async fn category_with_products(&self, ctx: &Context<'_>, id: i32) -> Result<Option<CategoryWithProductsGraphQL>> {
+        let db = ctx.data::<DatabaseConnection>()?;
+        let category = crate::services::CategoryService::get_category_by_id(db, id).await?;
+        
+        if let Some(category) = category {
+            let products = ProductService::get_by_category(db, id as i64).await?;
+            let mut result = CategoryWithProductsGraphQL::from(category);
+            result.products = products.into_iter().map(ProductGraphQL::from).collect();
+            Ok(Some(result))
+        } else {
+            Ok(None)
+        }
+    }
+
+    /// Get all categories with their products
+    async fn categories_with_products(&self, ctx: &Context<'_>) -> Result<Vec<CategoryWithProductsGraphQL>> {
+        let db = ctx.data::<DatabaseConnection>()?;
+        let categories = crate::services::CategoryService::get_all_categories(db).await?;
+        
+        let mut result = Vec::new();
+        for category in categories {
+            let products = ProductService::get_by_category(db, category.id).await?;
+            let mut cat_with_products = CategoryWithProductsGraphQL::from(category);
+            cat_with_products.products = products.into_iter().map(ProductGraphQL::from).collect();
+            result.push(cat_with_products);
+        }
+        
+        Ok(result)
+    }
+
     // ==================== CART QUERIES ====================
 
     /// Get cart items for user
@@ -216,11 +351,48 @@ impl QueryRoot {
         Ok(cart_items.into_iter().map(CartItemGraphQL::from).collect())
     }
 
+    /// Get cart items with product details
+    async fn cart_items_with_products(&self, ctx: &Context<'_>, user_id: i64) -> Result<Vec<CartItemWithProductGraphQL>> {
+        let db = ctx.data::<DatabaseConnection>()?;
+        let cart_items = CartService::get_cart_items(db, user_id).await?;
+        
+        let mut result = Vec::new();
+        for cart_item in cart_items {
+            if let Some(product) = ProductService::get_by_id(db, cart_item.product_id.unwrap_or(0)).await? {
+                result.push(CartItemWithProductGraphQL {
+                    id: cart_item.id,
+                    cart_id: cart_item.cart_id,
+                    product_id: cart_item.product_id.unwrap_or(0),
+                    quantity: cart_item.quantity,
+                    product: ProductGraphQL::from(product),
+                });
+            }
+        }
+        
+        Ok(result)
+    }
+
     /// Get cart item count for user
     async fn cart_count(&self, ctx: &Context<'_>, user_id: i64) -> Result<usize> {
         let db = ctx.data::<DatabaseConnection>()?;
         let count = CartService::get_cart_count(db, user_id).await?;
         Ok(count)
+    }
+
+    /// Get cart total amount for user
+    async fn cart_total(&self, ctx: &Context<'_>, user_id: i64) -> Result<f64> {
+        let db = ctx.data::<DatabaseConnection>()?;
+        let cart_items = CartService::get_cart_items(db, user_id).await?;
+        
+        let mut total = 0.0;
+        for cart_item in cart_items {
+            if let Some(product) = ProductService::get_by_id(db, cart_item.product_id.unwrap_or(0)).await? {
+                let price = product.price.to_f64().unwrap_or(0.0);
+                total += price * cart_item.quantity as f64;
+            }
+        }
+        
+        Ok(total)
     }
 
     // ==================== REVIEW QUERIES ====================
@@ -230,6 +402,13 @@ impl QueryRoot {
         let db = ctx.data::<DatabaseConnection>()?;
         let review = ReviewService::get_by_id(db, id).await?;
         Ok(review.map(ReviewGraphQL::from))
+    }
+
+    /// Get review detail by ID
+    async fn review_detail(&self, ctx: &Context<'_>, id: i64) -> Result<Option<ReviewDetailGraphQL>> {
+        let db = ctx.data::<DatabaseConnection>()?;
+        let review = ReviewService::get_by_id(db, id).await?;
+        Ok(review.map(ReviewDetailGraphQL::from))
     }
 
     /// Get all reviews for a product
@@ -288,11 +467,61 @@ impl QueryRoot {
         Ok(order.map(OrderGraphQL::from))
     }
 
+    /// Get order with items by ID
+    async fn order_with_items(&self, ctx: &Context<'_>, id: i64) -> Result<Option<OrderWithItemsGraphQL>> {
+        let db = ctx.data::<DatabaseConnection>()?;
+        let order = OrderService::get_by_id(db, id).await?;
+        
+        if let Some(order) = order {
+            let order_items = crate::services::OrderItemService::get_by_order(db, id).await?;
+            Ok(Some(OrderWithItemsGraphQL {
+                id: order.id,
+                user_id: order.user_id,
+                total_amount: order.total_price.to_f64().unwrap_or(0.0),
+                status: order.status,
+                created_at: order.created_at.map(|dt| dt.format("%Y-%m-%d %H:%M:%S").to_string()),
+                updated_at: order.updated_at.map(|dt| dt.format("%Y-%m-%d %H:%M:%S").to_string()),
+                items: order_items.into_iter().map(OrderItemGraphQL::from).collect(),
+            }))
+        } else {
+            Ok(None)
+        }
+    }
+
     /// Get orders by user ID
     async fn user_orders(&self, ctx: &Context<'_>, user_id: i64) -> Result<Vec<OrderGraphQL>> {
         let db = ctx.data::<DatabaseConnection>()?;
         let orders = OrderService::get_user_orders(db, user_id).await?;
         Ok(orders.into_iter().map(OrderGraphQL::from).collect())
+    }
+
+    /// Get orders with items by user ID
+    async fn user_orders_with_items(&self, ctx: &Context<'_>, user_id: i64) -> Result<Vec<OrderWithItemsGraphQL>> {
+        let db = ctx.data::<DatabaseConnection>()?;
+        let orders = OrderService::get_user_orders(db, user_id).await?;
+        
+        let mut result = Vec::new();
+        for order in orders {
+            let order_items = crate::services::OrderItemService::get_by_order(db, order.id).await?;
+            result.push(OrderWithItemsGraphQL {
+                id: order.id,
+                user_id: order.user_id,
+                total_amount: order.total_price.to_f64().unwrap_or(0.0),
+                status: order.status,
+                created_at: order.created_at.map(|dt| dt.format("%Y-%m-%d %H:%M:%S").to_string()),
+                updated_at: order.updated_at.map(|dt| dt.format("%Y-%m-%d %H:%M:%S").to_string()),
+                items: order_items.into_iter().map(OrderItemGraphQL::from).collect(),
+            });
+        }
+        
+        Ok(result)
+    }
+
+    /// Get order items by order ID
+    async fn order_items(&self, ctx: &Context<'_>, order_id: i64) -> Result<Vec<OrderItemGraphQL>> {
+        let db = ctx.data::<DatabaseConnection>()?;
+        let order_items = crate::services::OrderItemService::get_by_order(db, order_id).await?;
+        Ok(order_items.into_iter().map(OrderItemGraphQL::from).collect())
     }
 
     // ==================== PAYMENT QUERIES ====================

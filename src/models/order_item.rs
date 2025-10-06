@@ -2,7 +2,6 @@
 
 use sea_orm::entity::prelude::*;
 use serde::{Deserialize, Serialize};
-use async_graphql::SimpleObject;
 use bigdecimal::BigDecimal;
 
 // -------------------------------
