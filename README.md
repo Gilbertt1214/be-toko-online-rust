@@ -8,7 +8,7 @@
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-336791?style=for-the-badge&logo=postgresql)
 ![Xendit](https://img.shields.io/badge/Xendit-Payment-00BFA5?style=for-the-badge)
 
-**Backend API E-Commerce Modern dengan Rust + Axum + GraphQL + Seaorm + Xendit**
+**Backend API E-Commerce Modern dengan Rust + Axum + GraphQL + SeaORM+ Xendit**
 
 *Blazingly fast, type-safe, dan production-ready*
 
