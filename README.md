@@ -8,9 +8,9 @@
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-336791?style=for-the-badge&logo=postgresql)
 ![Xendit](https://img.shields.io/badge/Xendit-Payment-00BFA5?style=for-the-badge)
 
-**Backend API E-Commerce Modern dengan Rust + Axum + GraphQL + SeaORM+ Xendit**
+**Backend API E-Commerce Modern dengan Rust + Axum + GraphQL + SeaORM + Xendit**
 
-*Blazingly fast, type-safe, dan production-ready*
+*Super cepat, type-safe, dan siap produksi*
 
 [🚀 Mulai Cepat](#-instalasi-cepat) • [📖 Dokumentasi](#-dokumentasi-api) • [🎯 Roadmap](#-roadmap)
 
@@ -84,7 +84,7 @@
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                    🌐 Client Layer                           │
+│                    🌐 Lapisan Klien                          │
 │          (React/Vue/Flutter + GraphQL Client)                │
 └────────────────────┬────────────────────────────────────────┘
                      │ GraphQL Queries/Mutations
@@ -100,7 +100,7 @@
                      │
                      ▼
 ┌─────────────────────────────────────────────────────────────┐
-│              📊 GraphQL Layer (async-graphql)                │
+│              📊 Lapisan GraphQL (async-graphql)              │
 │                                                               │
 │  ┌─────────────────────────────────────────────────────┐    │
 │  │  Query Resolvers  │  Mutation Resolvers  │  Types   │    │
@@ -109,7 +109,7 @@
                      │
                      ▼
 ┌─────────────────────────────────────────────────────────────┐
-│                  💼 Business Logic Layer                     │
+│                  💼 Lapisan Logika Bisnis                    │
 │                                                               │
 │  ┌─────────┐ ┌─────────┐ ┌─────────┐ ┌──────────┐          │
 │  │  Auth   │ │ Product │ │  Cart   │ │  Order   │          │
@@ -123,26 +123,26 @@
                      │
                      ▼
 ┌─────────────────────────────────────────────────────────────┐
-│              🗄️ Data Access Layer (SeaORM)                  │
+│              🗄️ Lapisan Akses Data (SeaORM)                 │
 │                                                               │
 │  ┌──────────────────────────────────────────────────────┐   │
-│  │  Entity Models  │  Migrations  │  Connection Pool    │   │
+│  │  Model Entitas  │  Migrasi  │  Connection Pool       │   │
 │  └──────────────────────────────────────────────────────┘   │
 └────────────────────┬────────────────────────────────────────┘
                      │
                      ▼
 ┌─────────────────────────────────────────────────────────────┐
-│                  🗃️ PostgreSQL Database                     │
+│                  🗃️ Basis Data PostgreSQL                   │
 │                                                               │
-│  Users │ Products │ Orders │ Payments │ Reviews │ etc.      │
+│  Users │ Products │ Orders │ Payments │ Reviews │ dll.      │
 └─────────────────────────────────────────────────────────────┘
 
         ┌────────────────────────────────────┐
-        │    🔌 External Services            │
+        │    🔌 Layanan Eksternal            │
         │                                    │
         │  • Xendit Payment Gateway          │
-        │  • Email Service (SMTP)            │
-        │  • Cloud Storage (Optional)        │
+        │  • Layanan Email (SMTP)            │
+        │  • Cloud Storage (Opsional)        │
         └────────────────────────────────────┘
 ```
 
@@ -232,14 +232,14 @@ be-toko-online-rust/
 
 ## 🚀 Instalasi Cepat
 
-### Prerequisites
+### Prasyarat
 
 Pastikan sudah terinstall:
 
-- **Rust** 1.70+ ([Install Rust](https://rustup.rs/))
-- **PostgreSQL** 14+ ([Download PostgreSQL](https://www.postgresql.org/download/))
+- **Rust** 1.70+ ([Pasang Rust](https://rustup.rs/))
+- **PostgreSQL** 14+ ([Unduh PostgreSQL](https://www.postgresql.org/download/))
 - **Cargo** (otomatis dengan Rust)
-- **SeaORM CLI** (untuk migrations)
+- **SeaORM CLI** (untuk migrasi)
 
 ### Langkah-langkah Instalasi
 
@@ -255,23 +255,23 @@ cd be-toko-online-rust
 Buat file `.env` di root project:
 
 ```env
-# Database Configuration
+# Konfigurasi Basis Data
 DATABASE_URL=postgresql://postgres:password@localhost:5432/toko_online_nuvella
 
-# Server Configuration
+# Konfigurasi Server
 SERVER_HOST=127.0.0.1
 SERVER_PORT=8000
 
-# Security Keys (GENERATE BARU!)
+# Kunci Keamanan (GENERATE BARU!)
 SECRET_KEY=your-secret-key-32-characters-minimum
 JWT_SECRET=your-jwt-secret-32-characters-minimum
 
-# Xendit Configuration
+# Konfigurasi Xendit
 XENDIT_API_KEY=xnd_development_your_key_here
 XENDIT_WEBHOOK_TOKEN=your_webhook_verification_token
 XENDIT_CALLBACK_URL=https://yourdomain.com/webhook/xendit
 
-# Email Configuration (Optional)
+# Konfigurasi Email (Opsional)
 SMTP_HOST=smtp.gmail.com
 SMTP_PORT=587
 SMTP_USERNAME=your-email@gmail.com
@@ -281,23 +281,23 @@ SMTP_PASSWORD=your-app-password
 RUST_LOG=info,sqlx=warn
 ```
 
-**🔐 Generate Secret Keys:**
+**🔐 Buat Kunci Rahasia:**
 
 ```bash
-# Install openssl jika belum ada
-# Generate SECRET_KEY
+# Instal openssl jika belum ada
+# Buat SECRET_KEY
 openssl rand -hex 32
 
-# Generate JWT_SECRET
+# Buat JWT_SECRET
 openssl rand -hex 32
 ```
 
-**💳 Xendit Setup:**
+**💳 Setup Xendit:**
 
 1. Daftar di [Xendit Dashboard](https://dashboard.xendit.co/)
 2. Dapatkan **API Key** dari Settings → Developers
 3. Setup **Webhook URL** untuk notifikasi pembayaran
-4. Simpan **Webhook Verification Token**
+4. Simpan **Token Verifikasi Webhook**
 
 #### 3️⃣ Setup Database
 
@@ -325,26 +325,26 @@ sea-orm-cli migrate up
 sea-orm-cli migrate up -d ./migration
 ```
 
-#### 5️⃣ Build & Run
+#### 5️⃣ Build & Jalankan
 
-**Development Mode:**
+**Mode Development:**
 
 ```bash
-# Run dengan auto-reload (install cargo-watch)
+# Jalankan dengan auto-reload (instal cargo-watch)
 cargo install cargo-watch
 cargo watch -x run
 
-# Atau run biasa
+# Atau jalankan biasa
 cargo run
 ```
 
-**Production Mode:**
+**Mode Produksi:**
 
 ```bash
-# Build optimized binary
+# Build binary yang dioptimasi
 cargo build --release
 
-# Run binary
+# Jalankan binary
 ./target/release/be-toko-online-rust
 ```
 
@@ -352,10 +352,10 @@ cargo build --release
 
 Server berjalan di `http://127.0.0.1:8000` 🎉
 
-**Test endpoints:**
+**Tes endpoints:**
 
 ```bash
-# Health check
+# Cek kesehatan
 curl http://127.0.0.1:8000/health
 
 # Buka Apollo Sandbox
@@ -366,32 +366,32 @@ open http://127.0.0.1:8000/graphql
 
 ## 🔄 Flow Diagram Development
 
-### 🎯 Alur Request Processing
+### 🎯 Alur Pemrosesan Request
 
 ```mermaid
 graph TB
-    A[Client Request] -->|HTTP/HTTPS| B[Axum Router]
-    B -->|GraphQL Query/Mutation| C[GraphQL Handler]
-    B -->|REST Endpoint| D[REST Handler]
-    B -->|Xendit Webhook| E[Webhook Handler]
+    A[Request Klien] -->|HTTP/HTTPS| B[Router Axum]
+    B -->|GraphQL Query/Mutation| C[Handler GraphQL]
+    B -->|REST Endpoint| D[Handler REST]
+    B -->|Webhook Xendit| E[Handler Webhook]
     
-    C --> F[Middleware Layer]
+    C --> F[Lapisan Middleware]
     D --> F
     E --> F
     
-    F -->|Auth Check| G[JWT Validation]
-    G -->|Valid| H[Service Layer]
-    G -->|Invalid| Z[401 Unauthorized]
+    F -->|Cek Auth| G[Validasi JWT]
+    G -->|Valid| H[Lapisan Service]
+    G -->|Invalid| Z[401 Tidak Terotorisasi]
     
-    H --> I{Business Logic}
+    H --> I{Logika Bisnis}
     
-    I -->|Auth Service| J[Register/Login/Logout]
-    I -->|Product Service| K[CRUD Products]
-    I -->|Cart Service| L[Cart Operations]
-    I -->|Order Service| M[Order Processing]
-    I -->|Payment Service| N[Xendit Integration]
+    I -->|Service Auth| J[Register/Login/Logout]
+    I -->|Service Produk| K[CRUD Produk]
+    I -->|Service Keranjang| L[Operasi Keranjang]
+    I -->|Service Pesanan| M[Proses Pesanan]
+    I -->|Service Pembayaran| N[Integrasi Xendit]
     
-    J --> O[Database Layer]
+    J --> O[Lapisan Database]
     K --> O
     L --> O
     M --> O
@@ -399,153 +399,363 @@ graph TB
     
     O -->|SeaORM| P[(PostgreSQL)]
     
-    N -->|API Call| Q[Xendit API]
-    Q -->|Payment Created| R[Payment Response]
-    R --> S[Client Redirect]
+    N -->|Panggilan API| Q[API Xendit]
+    Q -->|Pembayaran Dibuat| R[Respon Pembayaran]
+    R --> S[Redirect Klien]
     
     Q -.->|Webhook| E
-    E -->|Verify Signature| T{Valid?}
-    T -->|Yes| U[Update Payment Status]
-    T -->|No| V[Reject]
+    E -->|Verifikasi Tanda Tangan| T{Valid?}
+    T -->|Ya| U[Update Status Pembayaran]
+    T -->|Tidak| V[Tolak]
     U --> O
     
-    P --> W[Response Builder]
-    W --> X[JSON Response]
-    X --> Y[Client]
+    P --> W[Pembuat Respon]
+    W --> X[Respon JSON]
+    X --> Y[Klien]
 ```
 
-### 💳 Payment Flow dengan Xendit
+### 💳 Alur Pembayaran dengan Xendit
 
 ```mermaid
 sequenceDiagram
-    participant C as Client/Frontend
-    participant A as Axum API
-    participant S as Payment Service
-    participant X as Xendit API
+    participant C as Klien/Frontend
+    participant A as API Axum
+    participant S as Service Pembayaran
+    participant X as API Xendit
     participant W as Webhook
-    participant D as Database
+    participant D as Basis Data
     
-    C->>A: createOrder(paymentMethod)
-    A->>S: Process Order
-    S->>D: Save Order (PENDING)
-    D-->>S: Order Created
+    C->>A: createOrder(metode_pembayaran)
+    A->>S: Proses Pesanan
+    S->>D: Simpan Pesanan (PENDING)
+    D-->>S: Pesanan Dibuat
     
-    S->>X: Create Invoice/VA/EWallet
-    X-->>S: Payment URL/VA Number
-    S->>D: Save Payment (PENDING)
-    D-->>S: Payment Saved
-    S-->>A: Payment Info
-    A-->>C: Payment URL/Details
+    S->>X: Buat Invoice/VA/EWallet
+    X-->>S: URL Pembayaran/Nomor VA
+    S->>D: Simpan Pembayaran (PENDING)
+    D-->>S: Pembayaran Tersimpan
+    S-->>A: Info Pembayaran
+    A-->>C: URL/Detail Pembayaran
     
-    C->>C: User Completes Payment
+    C->>C: User Menyelesaikan Pembayaran
     
     X->>W: Webhook: payment.paid
-    W->>W: Verify Signature
-    W->>D: Update Payment (SUCCESS)
-    W->>D: Update Order (PAID)
-    D-->>W: Updated
+    W->>W: Verifikasi Tanda Tangan
+    W->>D: Update Pembayaran (SUCCESS)
+    W->>D: Update Pesanan (PAID)
+    D-->>W: Diperbarui
     W-->>X: 200 OK
     
-    Note over W: Send Email Notification
-    W->>C: Push Notification (Optional)
+    Note over W: Kirim Notifikasi Email
+    W->>C: Notifikasi Push (Opsional)
     
     C->>A: checkOrderStatus(orderId)
-    A->>D: Get Order Status
-    D-->>A: Order Status: PAID
-    A-->>C: Order Confirmed
+    A->>D: Ambil Status Pesanan
+    D-->>A: Status Pesanan: PAID
+    A-->>C: Pesanan Dikonfirmasi
 ```
 
-### 🔄 User Authentication Flow
+### 🔄 Alur Autentikasi Pengguna
 
 ```mermaid
 sequenceDiagram
-    participant C as Client
-    participant A as API
-    participant Auth as Auth Service
-    participant DB as Database
-    participant JWT as JWT Service
+    participant C as Klien/Frontend
+    participant A as API Axum
+    participant Auth as Service Auth
+    participant Hash as Service Argon2
+    participant JWT as Service JWT
+    participant DB as Basis Data PostgreSQL
     
-    rect rgb(200, 220, 255)
-        Note over C,JWT: Registration Flow
-        C->>A: register(email, password, name)
-        A->>Auth: Validate Input
-        Auth->>DB: Check Email Exists
-        DB-->>Auth: Email Available
-        Auth->>Auth: Hash Password (Argon2)
-        Auth->>DB: Create User
-        DB-->>Auth: User Created
-        Auth->>JWT: Generate Tokens
-        JWT-->>Auth: Access + Refresh Token
-        Auth-->>A: User + Tokens
-        A-->>C: Success Response
+    rect rgb(200, 230, 255)
+        Note over C,DB: 📝 Alur Registrasi
+        C->>A: POST /graphql: register(email, password, nama)
+        A->>Auth: Proses Request Registrasi
+        
+        Auth->>Auth: Validasi Input (format email, kekuatan password)
+        
+        Auth->>DB: Cek apakah email sudah ada
+        DB-->>Auth: Hasil Query
+        
+        alt Email Sudah Terdaftar
+            Auth-->>A: Error: Email sudah terdaftar
+            A-->>C: 400 Bad Request
+        else Email Tersedia
+            Auth->>Hash: Hash Password (Argon2id)
+            Hash-->>Auth: Password Ter-hash
+            
+            Auth->>DB: INSERT INTO users (nama, email, password_hash, role)
+            DB-->>Auth: Record User Dibuat (ID: 123)
+            
+            Auth->>JWT: Buat Access Token (kadaluarsa: 15menit)
+            Auth->>JWT: Buat Refresh Token (kadaluarsa: 7hari)
+            JWT-->>Auth: Pasangan Token
+            
+            Auth->>DB: Simpan Refresh Token
+            DB-->>Auth: Token Tersimpan
+            
+            Auth-->>A: Objek User + Token
+            A-->>C: 201 Created + Set-Cookie(refreshToken)
+            
+            Note over C: Pengguna Berhasil Terdaftar
+        end
     end
     
     rect rgb(220, 255, 220)
-        Note over C,JWT: Login Flow
-        C->>A: login(email, password)
-        A->>Auth: Validate Credentials
-        Auth->>DB: Find User by Email
-        DB-->>Auth: User Data
-        Auth->>Auth: Verify Password
-        Auth->>JWT: Generate Tokens
-        JWT-->>Auth: Access + Refresh Token
-        Auth-->>A: User + Tokens
-        A-->>C: Success + Set Cookies
+        Note over C,DB: 🔑 Alur Login
+        C->>A: POST /graphql: login(email, password)
+        A->>Auth: Proses Request Login
+        
+        Auth->>Auth: Validasi Input
+        
+        Auth->>DB: SELECT * FROM users WHERE email = ?
+        DB-->>Auth: Record User Ditemukan
+        
+        alt User Tidak Ditemukan
+            Auth-->>A: Error: Kredensial tidak valid
+            A-->>C: 401 Unauthorized
+        else User Ditemukan
+            Auth->>Hash: Verifikasi Password(plain, hashed)
+            Hash-->>Auth: Hasil Pencocokan Password
+            
+            alt Password Salah
+                Auth-->>A: Error: Kredensial tidak valid
+                A-->>C: 401 Unauthorized
+            else Password Benar
+                Auth->>JWT: Buat Access Token Baru
+                Auth->>JWT: Buat Refresh Token Baru
+                JWT-->>Auth: Pasangan Token
+                
+                Auth->>DB: UPDATE users SET last_login = NOW()
+                Auth->>DB: UPSERT refresh_token
+                DB-->>Auth: Diperbarui
+                
+                Auth-->>A: Objek User + Token
+                A-->>C: 200 OK + Set-Cookie(refreshToken)
+                
+                Note over C: Pengguna Berhasil Login
+            end
+        end
+    end
+    
+    rect rgb(255, 245, 220)
+        Note over C,DB: 🔒 Alur Request Terproteksi
+        C->>A: POST /graphql: getProfile() + Authorization Header
+        A->>Auth: Ekstrak JWT dari Header
+        
+        Auth->>JWT: Verifikasi Tanda Tangan Token
+        JWT-->>Auth: Token Valid/Invalid
+        
+        alt Token Invalid/Kadaluarsa
+            Auth-->>A: Error: Token tidak valid
+            A-->>C: 401 Unauthorized
+        else Token Valid
+            Auth->>JWT: Decode Klaim Token
+            JWT-->>Auth: User ID: 123
+            
+            Auth->>DB: SELECT * FROM users WHERE id = 123
+            DB-->>Auth: Data User
+            
+            alt User Tidak Ditemukan
+                Auth-->>A: Error: User tidak ditemukan
+                A-->>C: 404 Not Found
+            else User Ditemukan
+                Auth-->>A: Data Profil User
+                A-->>C: 200 OK + JSON Profil User
+                
+                Note over C: Profil Berhasil Diambil
+            end
+        end
     end
     
     rect rgb(255, 220, 220)
-        Note over C,JWT: Protected Request Flow
-        C->>A: getProfile() + JWT
-        A->>Auth: Verify Token
-        Auth->>JWT: Decode & Validate
-        JWT-->>Auth: Valid User ID
-        Auth->>DB: Get User Profile
-        DB-->>Auth: User Data
-        Auth-->>A: Profile Data
-        A-->>C: User Profile
+        Note over C,DB: 🔄 Alur Refresh Token
+        C->>A: POST /graphql: refreshToken() + Cookie(refreshToken)
+        A->>Auth: Ekstrak Refresh Token dari Cookie
+        
+        Auth->>JWT: Verifikasi Refresh Token
+        JWT-->>Auth: Token Valid/Invalid
+        
+        alt Token Invalid/Kadaluarsa
+            Auth-->>A: Error: Refresh token tidak valid
+            A-->>C: 401 Unauthorized
+            Note over C: User Harus Login Lagi
+        else Token Valid
+            Auth->>DB: Cek apakah refresh token ada & tidak dicabut
+            DB-->>Auth: Status Token
+            
+            alt Token Dicabut/Tidak Ditemukan
+                Auth-->>A: Error: Token dicabut
+                A-->>C: 401 Unauthorized
+            else Token Aktif
+                Auth->>JWT: Buat Access Token Baru
+                JWT-->>Auth: Access Token Baru
+                
+                Auth->>JWT: Rotasi Refresh Token (Opsional)
+                JWT-->>Auth: Refresh Token Baru
+                
+                Auth->>DB: UPDATE refresh_token SET token = ?, updated_at = NOW()
+                DB-->>Auth: Diperbarui
+                
+                Auth-->>A: Pasangan Token Baru
+                A-->>C: 200 OK + Set-Cookie(refreshTokenBaru)
+                
+                Note over C: Token Berhasil Di-refresh
+            end
+        end
+    end
+    
+    rect rgb(255, 230, 230)
+        Note over C,DB: 🚪 Alur Logout
+        C->>A: POST /graphql: logout() + Authorization Header
+        A->>Auth: Ekstrak JWT & Proses Logout
+        
+        Auth->>JWT: Decode Token untuk Dapatkan User ID
+        JWT-->>Auth: User ID: 123
+        
+        Auth->>DB: DELETE FROM refresh_tokens WHERE user_id = 123
+        DB-->>Auth: Token Dicabut
+        
+        Auth-->>A: Logout Sukses
+        A-->>C: 200 OK + Clear-Cookie(refreshToken)
+        
+        Note over C: Pengguna Berhasil Logout
     end
 ```
 
-### 🛒 Shopping Cart to Order Flow
+### 🔐 Strategi Token
+
+**Access Token:**
+- ⏱️ **Masa Berlaku**: 15 menit
+- 📦 **Penyimpanan**: Memory/LocalStorage (Frontend)
+- 🎯 **Tujuan**: Otorisasi request API
+- 🔒 **Keamanan**: Berumur pendek, tanda tangan JWT
+
+**Refresh Token:**
+- ⏱️ **Masa Berlaku**: 7 hari
+- 🍪 **Penyimpanan**: HTTP-only Cookie
+- 🎯 **Tujuan**: Mendapatkan access token baru
+- 🔒 **Keamanan**: Disimpan di DB, bisa dicabut
+
+### 🛡️ Fitur Keamanan
+
+| Fitur | Implementasi | Perlindungan Terhadap |
+|---------|---------------|-------------------|
+| **Password Hashing** | Argon2id (memory-hard) | Rainbow tables, brute force |
+| **Tanda Tangan JWT** | HS256 dengan secret key | Manipulasi token |
+| **Rotasi Refresh Token** | Token baru setiap refresh | Serangan replay token |
+| **HTTP-Only Cookies** | Secure, SameSite=Strict | Serangan XSS |
+| **Pencabutan Token** | Blacklist berbasis DB | Token yang dikompromikan |
+| **Rate Limiting** | Batas per-IP dan per-user | Serangan brute force |
+
+### 📋 Penanganan Error
+
+```rust
+// Error Autentikasi Umum
+pub enum AuthError {
+    InvalidCredentials,        // 401
+    EmailAlreadyExists,        // 400
+    TokenExpired,              // 401
+    TokenInvalid,              // 401
+    TokenRevoked,              // 401
+    UserNotFound,              // 404
+    UnauthorizedAccess,        // 403
+    InternalServerError,       // 500
+}
+```
+
+### 🔄 Strategi Refresh Token
+
+**Kapan melakukan refresh:**
+- Access token kadaluarsa dalam < 5 menit
+- Respon 401 dari API
+- Saat startup aplikasi (jika refresh token valid)
+
+**Implementasi Frontend:**
+```typescript
+// Contoh interceptor Axios
+axios.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    if (error.response?.status === 401) {
+      try {
+        // Coba refresh token
+        await refreshAccessToken();
+        // Ulangi request asli
+        return axios(error.config);
+      } catch (refreshError) {
+        // Redirect ke halaman login
+        window.location.href = '/login';
+      }
+    }
+    return Promise.reject(error);
+  }
+);
+```
+
+### 🎯 Best Practices yang Diimplementasikan
+
+✅ **Persyaratan Password:**
+- Minimal 8 karakter
+- Minimal 1 huruf besar
+- Minimal 1 huruf kecil
+- Minimal 1 angka
+- Minimal 1 karakter spesial
+
+✅ **Rate Limiting:**
+- Percobaan login: 5 per 15 menit per IP
+- Registrasi: 3 per jam per IP
+- Refresh token: 10 per jam per user
+
+✅ **Manajemen Sesi:**
+- Login satu perangkat (opsional)
+- Dukungan multi-perangkat dengan pelacakan token
+- Kemampuan logout paksa semua perangkat
+
+✅ **Audit Logging:**
+- Log semua percobaan autentikasi
+- Lacak login berhasil/gagal
+- Monitor aktivitas mencurigakan
+
+### 🛒 Alur Keranjang Belanja ke Pesanan
 
 ```mermaid
 stateDiagram-v2
-    [*] --> BrowseProducts: User Membuka Toko
+    [*] --> TelusurProduk: User Membuka Toko
     
-    BrowseProducts --> AddToCart: Pilih Produk
-    AddToCart --> ViewCart: Lihat Keranjang
+    TelusurProduk --> TambahKeKeranjang: Pilih Produk
+    TambahKeKeranjang --> LihatKeranjang: Lihat Keranjang
     
-    ViewCart --> UpdateQuantity: Ubah Jumlah
-    UpdateQuantity --> ViewCart
+    LihatKeranjang --> UpdateJumlah: Ubah Jumlah
+    UpdateJumlah --> LihatKeranjang
     
-    ViewCart --> RemoveItem: Hapus Item
-    RemoveItem --> ViewCart
+    LihatKeranjang --> HapusItem: Hapus Item
+    HapusItem --> LihatKeranjang
     
-    ViewCart --> Checkout: Lanjut Checkout
+    LihatKeranjang --> Checkout: Lanjut Checkout
     
-    Checkout --> SelectAddress: Pilih Alamat
-    SelectAddress --> SelectPayment: Pilih Payment
+    Checkout --> PilihAlamat: Pilih Alamat
+    PilihAlamat --> PilihPembayaran: Pilih Pembayaran
     
-    SelectPayment --> CreateOrder: Buat Order
+    PilihPembayaran --> BuatPesanan: Buat Pesanan
     
-    CreateOrder --> OrderPending: Order Dibuat
-    OrderPending --> PaymentCreated: Generate Payment
+    BuatPesanan --> PesananPending: Pesanan Dibuat
+    PesananPending --> PembayaranDibuat: Generate Pembayaran
     
-    PaymentCreated --> WaitingPayment: Redirect ke Payment
+    PembayaranDibuat --> MenungguPembayaran: Redirect ke Pembayaran
     
-    WaitingPayment --> PaymentSuccess: User Bayar
-    WaitingPayment --> PaymentExpired: Timeout
+    MenungguPembayaran --> PembayaranSukses: User Bayar
+    MenungguPembayaran --> PembayaranKadaluarsa: Timeout
     
-    PaymentSuccess --> OrderPaid: Update Status
-    OrderPaid --> OrderProcessing: Mulai Proses
-    OrderProcessing --> OrderShipped: Dikirim
-    OrderShipped --> OrderDelivered: Sampai
-    OrderDelivered --> OrderCompleted: Selesai
+    PembayaranSukses --> PesananDibayar: Update Status
+    PesananDibayar --> PesananDiproses: Mulai Proses
+    PesananDiproses --> PesananDikirim: Dikirim
+    PesananDikirim --> PesananSampai: Sampai
+    PesananSampai --> PesananSelesai: Selesai
     
-    PaymentExpired --> OrderCancelled: Order Dibatalkan
+    PembayaranKadaluarsa --> PesananDibatalkan: Pesanan Dibatalkan
     
-    OrderCompleted --> [*]
-    OrderCancelled --> [*]
+    PesananSelesai --> [*]
+    PesananDibatalkan --> [*]
 ```
 
 ---
@@ -556,21 +766,21 @@ stateDiagram-v2
 
 Akses Apollo Sandbox di: **`http://127.0.0.1:8000/graphql`**
 
-Features:
-- ✅ Schema documentation otomatis
+Fitur:
+- ✅ Dokumentasi schema otomatis
 - ✅ Auto-completion
-- ✅ Query history
+- ✅ Riwayat query
 - ✅ Syntax highlighting
-- ✅ Real-time execution
+- ✅ Eksekusi real-time
 
-### Endpoint Summary
+### Ringkasan Endpoint
 
 | Endpoint | Method | Deskripsi |
 |----------|--------|-----------|
-| `/graphql` | POST | GraphQL API endpoint |
-| `/health` | GET | Health check server |
-| `/webhook/xendit` | POST | Xendit payment webhook |
-| `/` | GET | API information page |
+| `/graphql` | POST | Endpoint API GraphQL |
+| `/health` | GET | Cek kesehatan server |
+| `/webhook/xendit` | POST | Webhook pembayaran Xendit |
+| `/` | GET | Halaman informasi API |
 
 ---
 
@@ -802,11 +1012,11 @@ query CheckPaymentStatus($orderId: ID!) {
 
 ## 💳 Integrasi Xendit
 
-### Payment Methods Tersedia
+### Metode Pembayaran Tersedia
 
-| Method | Code | Deskripsi |
+| Metode | Kode | Deskripsi |
 |--------|------|-----------|
-| 💳 Credit Card | `CREDIT_CARD` | Visa, Mastercard, JCB |
+| 💳 Kartu Kredit | `CREDIT_CARD` | Visa, Mastercard, JCB |
 | 🏦 Virtual Account | `VIRTUAL_ACCOUNT` | BCA, Mandiri, BNI, BRI, Permata |
 | 🏪 E-Wallet | `EWALLET` | OVO, Dana, LinkAja, ShopeePay |
 | 🏬 Retail Outlet | `RETAIL_OUTLET` | Alfamart, Indomaret |
@@ -826,42 +1036,42 @@ query CheckPaymentStatus($orderId: ID!) {
 ### Testing Xendit (Development)
 
 ```bash
-# Test Virtual Account BCA
+# Tes Virtual Account BCA
 curl -X POST http://localhost:8000/graphql \
   -H "Content-Type: application/json" \
-  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+  -H "Authorization: Bearer TOKEN_JWT_ANDA" \
   -d '{
     "query": "mutation { createOrder(input: { addressId: 1, paymentMethod: \"VIRTUAL_ACCOUNT\", bankCode: \"BCA\" }) { payment { accountNumber } } }"
   }'
 ```
 
-**Test Payment dengan Xendit Simulator:**
+**Tes Pembayaran dengan Xendit Simulator:**
 - BCA VA: `https://simulator.xendit.co/`
 
 ---
 
-## 🧪 Testing
+## 🧪 Pengujian
 
 ### Unit Tests
 
 ```bash
-# Run semua tests
+# Jalankan semua tes
 cargo test
 
-# Run dengan output detail
+# Jalankan dengan output detail
 cargo test -- --show-output --nocapture
 
-# Run test spesifik
+# Jalankan tes spesifik
 cargo test test_user_registration
 
-# Run tests di module tertentu
+# Jalankan tes di module tertentu
 cargo test services::auth::tests
 ```
 
 ### Integration Tests
 
 ```bash
-# Run integration tests
+# Jalankan integration tests
 cargo test --test '*'
 
 # Dengan coverage
@@ -872,20 +1082,20 @@ cargo tarpaulin --out Html --output-dir coverage
 ### Load Testing
 
 ```bash
-# Install tools
+# Instal tools
 sudo apt install apache2-utils  # untuk ab
 cargo install drill             # HTTP load testing
 
-# Test health endpoint
+# Tes endpoint health
 ab -n 10000 -c 100 http://127.0.0.1:8000/health
 
-# Test GraphQL
+# Tes GraphQL
 drill --benchmark benchmark.yml --stats
 ```
 
 ---
 
-## 🐳 Docker Deployment
+## 🐳 Deployment Docker
 
 ### Development dengan Docker Compose
 
@@ -909,7 +1119,7 @@ docker-compose up -d --build
 # Build image
 docker build -t toko-nuvella:latest .
 
-# Run container
+# Jalankan container
 docker run -d \
   --name toko-nuvella \
   -p 8000:8000 \
@@ -919,25 +1129,25 @@ docker run -d \
 
 ---
 
-## 🚀 Deployment Production
+## 🚀 Deployment Produksi
 
 ### Platform Rekomendasi
 
-| Platform | Difficulty | Cost | Best For |
+| Platform | Kesulitan | Biaya | Terbaik Untuk |
 |----------|-----------|------|----------|
-| 🚂 Railway | ⭐ Easy | Free tier | Prototype/MVP |
-| 🌊 Fly.io | ⭐⭐ Medium | Pay as go | Production |
-| ☁️ AWS ECS | ⭐⭐⭐ Advanced | $$ | Enterprise |
-| 🔷 DigitalOcean | ⭐⭐ Medium | $ | Small business |
+| 🚂 Railway | ⭐ Mudah | Gratis tier | Prototipe/MVP |
+| 🌊 Fly.io | ⭐⭐ Sedang | Bayar sesuai pemakaian | Produksi |
+| ☁️ AWS ECS | ⭐⭐⭐ Lanjutan | $ | Enterprise |
+| 🔷 DigitalOcean | ⭐⭐ Sedang | $ | Bisnis kecil |
 
-### Environment Variables Production
+### Environment Variables Produksi
 
 ```env
-# PRODUCTION SETTINGS
+# PENGATURAN PRODUKSI
 DATABASE_URL=postgresql://user:pass@prod-db:5432/db
-SECRET_KEY=<GENERATE_NEW_SECURE_KEY>
-JWT_SECRET=<GENERATE_NEW_SECURE_KEY>
-XENDIT_API_KEY=xnd_production_<YOUR_PROD_KEY>
+SECRET_KEY=<GENERATE_KUNCI_AMAN_BARU>
+JWT_SECRET=<GENERATE_KUNCI_AMAN_BARU>
+XENDIT_API_KEY=xnd_production_<KUNCI_PROD_ANDA>
 SERVER_HOST=0.0.0.0
 SERVER_PORT=8000
 RUST_LOG=warn
@@ -945,60 +1155,60 @@ RUST_LOG=warn
 
 ---
 
-## 🛡️ Security Best Practices
+## 🛡️ Best Practices Keamanan
 
-✅ **Implemented:**
+✅ **Sudah Diimplementasikan:**
 - Password hashing dengan Argon2id
-- JWT dengan expiry time
-- SQL injection prevention (SeaORM)
-- CORS configuration
+- JWT dengan waktu kadaluarsa
+- Pencegahan SQL injection (SeaORM)
+- Konfigurasi CORS
 - Rate limiting
-- Input validation & sanitization
-- Webhook signature verification (Xendit)
+- Validasi & sanitasi input
+- Verifikasi tanda tangan webhook (Xendit)
 
-⚠️ **Rekomendasi Production:**
+⚠️ **Rekomendasi Produksi:**
 - Aktifkan HTTPS/TLS
-- Setup firewall rules
-- Database encryption at rest
-- Regular security audits
-- Implement API versioning
+- Setup aturan firewall
+- Enkripsi basis data at rest
+- Audit keamanan rutin
+- Implementasi versioning API
 - Setup monitoring & alerting
 
 ---
 
 ## 🎯 Roadmap
 
-### ✅ Completed
+### ✅ Selesai
 - [x] GraphQL API dengan async-graphql
-- [x] Authentication & Authorization (JWT)
+- [x] Autentikasi & Otorisasi (JWT)
 - [x] CRUD Produk & Kategori
-- [x] Shopping Cart Management
-- [x] Order Processing System
-- [x] Xendit Payment Integration
-- [x] Webhook Handler
-- [x] Review & Rating System
+- [x] Manajemen Keranjang Belanja
+- [x] Sistem Pemrosesan Pesanan
+- [x] Integrasi Pembayaran Xendit
+- [x] Handler Webhook
+- [x] Sistem Review & Rating
 
-### 🔄 In Progress
-- [ ] Email Notifications (SMTP)
-- [ ] Admin Dashboard API
-- [ ] Product Image Upload (S3/Cloud Storage)
-- [ ] Advanced Search (Full-text search)
+### 🔄 Sedang Dikerjakan
+- [ ] Notifikasi Email (SMTP)
+- [ ] API Dashboard Admin
+- [ ] Upload Gambar Produk (S3/Cloud Storage)
+- [ ] Pencarian Lanjutan (Full-text search)
 
-### 📋 Planned
-- [ ] Real-time Notifications (WebSocket)
-- [ ] Product Recommendations (ML)
-- [ ] Multi-language Support (i18n)
-- [ ] API Rate Limiting per User
-- [ ] Elasticsearch Integration
-- [ ] Redis Caching Layer
-- [ ] Shipping Integration (J&T, JNE, SiCepat)
-- [ ] Promo & Discount System
-- [ ] Loyalty Points Program
+### 📋 Direncanakan
+- [ ] Notifikasi Real-time (WebSocket)
+- [ ] Rekomendasi Produk (ML)
+- [ ] Dukungan Multi-bahasa (i18n)
+- [ ] Rate Limiting API per User
+- [ ] Integrasi Elasticsearch
+- [ ] Lapisan Caching Redis
+- [ ] Integrasi Pengiriman (J&T, JNE, SiCepat)
+- [ ] Sistem Promo & Diskon
+- [ ] Program Poin Loyalitas
 - [ ] Chat Customer Service
 
 ---
 
-## 🤝 Contributing
+## 🤝 Berkontribusi
 
 Kontribusi sangat diterima! Berikut cara berkontribusi:
 
@@ -1010,23 +1220,23 @@ Kontribusi sangat diterima! Berikut cara berkontribusi:
 4. **Push** ke branch (`git push origin feature/FiturKeren`)
 5. Buat **Pull Request**
 
-### Guidelines
+### Panduan
 
 - ✅ Ikuti konvensi penamaan Rust
 - ✅ Tulis unit tests untuk fitur baru
 - ✅ Update dokumentasi jika perlu
-- ✅ Pastikan `cargo fmt && cargo clippy` clean
+- ✅ Pastikan `cargo fmt && cargo clippy` bersih
 - ✅ Commit message yang jelas
 
 ---
 
-## 📄 License
+## 📄 Lisensi
 
 Project ini menggunakan **MIT License** - lihat file [LICENSE](LICENSE) untuk detail.
 
 ---
 
-## 👨‍💻 Author
+## 👨‍💻 Pembuat
 
 <div align="center">
 
@@ -1041,7 +1251,7 @@ Project ini menggunakan **MIT License** - lihat file [LICENSE](LICENSE) untuk de
 
 ---
 
-## 🙏 Acknowledgments
+## 🙏 Ucapan Terima Kasih
 
 Terima kasih kepada:
 
@@ -1051,15 +1261,15 @@ Terima kasih kepada:
 - 🗄️ **SeaORM** - ORM solution yang excellent
 - 🎨 **async-graphql** - GraphQL implementation terbaik
 - 💳 **Xendit** - Payment gateway Indonesia terbaik
-- 💡 **Open Source Contributors** - Untuk inspirasi dan guidance
+- 💡 **Open Source Contributors** - Untuk inspirasi dan panduan
 
 ---
 
-## 📞 Support & Contact
+## 📞 Dukungan & Kontak
 
 Butuh bantuan? Silakan hubungi:
 
-- 🐛 **Bug Reports**: [Open an Issue](https://github.com/Gilbertt1214/be-toko-online-rust/issues)
+- 🐛 **Laporan Bug**: [Buka Issue](https://github.com/Gilbertt1214/be-toko-online-rust/issues)
 - 💬 **Diskusi**: [GitHub Discussions](https://github.com/Gilbertt1214/be-toko-online-rust/discussions)
 - 📧 **Email**: gilbertt@example.com
 - 💼 **LinkedIn**: [Fahriana Nurzukhruf](https://www.linkedin.com/in/fahriana-nurzukhruf-45986a308/)
@@ -1068,7 +1278,7 @@ Butuh bantuan? Silakan hubungi:
 
 <div align="center">
 
-### ⭐ Jika project ini bermanfaat, berikan star! ⭐
+### ⭐ Jika project ini bermanfaat, berikan bintang! ⭐
 
 **Dibuat dengan ❤️ menggunakan 🦀 Rust**
 
