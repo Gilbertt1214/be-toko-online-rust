@@ -311,13 +311,13 @@ CREATE DATABASE toko_online_nuvella;
 \q
 ```
 
-#### 4️⃣ Install SeaORM CLI & Run Migrations
+#### 4️⃣ Instal SeaORM CLI & Jalankan Migrasi
 
 ```bash
-# Install SeaORM CLI
+# Instal SeaORM CLI
 cargo install sea-orm-cli
 
-# Jalankan migrations
+# Jalankan migrasi
 cd migration
 sea-orm-cli migrate up
 
@@ -466,160 +466,150 @@ sequenceDiagram
     participant JWT as Service JWT
     participant DB as Basis Data PostgreSQL
     
-    rect
-        Note over C,DB: 📝 Alur Registrasi
-        C->>A: POST /graphql: register(email, password, nama)
-        A->>Auth: Proses Request Registrasi
+    Note over C,DB: 📝 Alur Registrasi
+    C->>A: POST /graphql: register(email, password, nama)
+    A->>Auth: Proses Request Registrasi
+    
+    Auth->>Auth: Validasi Input (format email, kekuatan password)
+    
+    Auth->>DB: Cek apakah email sudah ada
+    DB-->>Auth: Hasil Query
+    
+    alt Email Sudah Terdaftar
+        Auth-->>A: Error: Email sudah terdaftar
+        A-->>C: 400 Bad Request
+    else Email Tersedia
+        Auth->>Hash: Hash Password (Argon2id)
+        Hash-->>Auth: Password Ter-hash
         
-        Auth->>Auth: Validasi Input (format email, kekuatan password)
+        Auth->>DB: INSERT INTO users (nama, email, password_hash, role)
+        DB-->>Auth: Record User Dibuat (ID: 123)
         
-        Auth->>DB: Cek apakah email sudah ada
-        DB-->>Auth: Hasil Query
+        Auth->>JWT: Buat Access Token (kadaluarsa: 15menit)
+        Auth->>JWT: Buat Refresh Token (kadaluarsa: 7hari)
+        JWT-->>Auth: Pasangan Token
         
-        alt Email Sudah Terdaftar
-            Auth-->>A: Error: Email sudah terdaftar
-            A-->>C: 400 Bad Request
-        else Email Tersedia
-            Auth->>Hash: Hash Password (Argon2id)
-            Hash-->>Auth: Password Ter-hash
-            
-            Auth->>DB: INSERT INTO users (nama, email, password_hash, role)
-            DB-->>Auth: Record User Dibuat (ID: 123)
-            
-            Auth->>JWT: Buat Access Token (kadaluarsa: 15menit)
-            Auth->>JWT: Buat Refresh Token (kadaluarsa: 7hari)
-            JWT-->>Auth: Pasangan Token
-            
-            Auth->>DB: Simpan Refresh Token
-            DB-->>Auth: Token Tersimpan
-            
-            Auth-->>A: Objek User + Token
-            A-->>C: 201 Created + Set-Cookie(refreshToken)
-            
-            Note over C: Pengguna Berhasil Terdaftar
-        end
+        Auth->>DB: Simpan Refresh Token
+        DB-->>Auth: Token Tersimpan
+        
+        Auth-->>A: Objek User + Token
+        A-->>C: 201 Created + Set-Cookie(refreshToken)
+        
+        Note over C: Pengguna Berhasil Terdaftar
     end
     
-    rect 
-        Note over C,DB: 🔑 Alur Login
-        C->>A: POST /graphql: login(email, password)
-        A->>Auth: Proses Request Login
+    Note over C,DB: 🔑 Alur Login
+    C->>A: POST /graphql: login(email, password)
+    A->>Auth: Proses Request Login
+    
+    Auth->>Auth: Validasi Input
+    
+    Auth->>DB: SELECT * FROM users WHERE email = ?
+    DB-->>Auth: Record User Ditemukan
+    
+    alt User Tidak Ditemukan
+        Auth-->>A: Error: Kredensial tidak valid
+        A-->>C: 401 Unauthorized
+    else User Ditemukan
+        Auth->>Hash: Verifikasi Password(plain, hashed)
+        Hash-->>Auth: Hasil Pencocokan Password
         
-        Auth->>Auth: Validasi Input
-        
-        Auth->>DB: SELECT * FROM users WHERE email = ?
-        DB-->>Auth: Record User Ditemukan
-        
-        alt User Tidak Ditemukan
+        alt Password Salah
             Auth-->>A: Error: Kredensial tidak valid
             A-->>C: 401 Unauthorized
-        else User Ditemukan
-            Auth->>Hash: Verifikasi Password(plain, hashed)
-            Hash-->>Auth: Hasil Pencocokan Password
+        else Password Benar
+            Auth->>JWT: Buat Access Token Baru
+            Auth->>JWT: Buat Refresh Token Baru
+            JWT-->>Auth: Pasangan Token
             
-            alt Password Salah
-                Auth-->>A: Error: Kredensial tidak valid
-                A-->>C: 401 Unauthorized
-            else Password Benar
-                Auth->>JWT: Buat Access Token Baru
-                Auth->>JWT: Buat Refresh Token Baru
-                JWT-->>Auth: Pasangan Token
-                
-                Auth->>DB: UPDATE users SET last_login = NOW()
-                Auth->>DB: UPSERT refresh_token
-                DB-->>Auth: Diperbarui
-                
-                Auth-->>A: Objek User + Token
-                A-->>C: 200 OK + Set-Cookie(refreshToken)
-                
-                Note over C: Pengguna Berhasil Login
-            end
+            Auth->>DB: UPDATE users SET last_login = NOW()
+            Auth->>DB: UPSERT refresh_token
+            DB-->>Auth: Diperbarui
+            
+            Auth-->>A: Objek User + Token
+            A-->>C: 200 OK + Set-Cookie(refreshToken)
+            
+            Note over C: Pengguna Berhasil Login
         end
     end
     
-    rect 
-        Note over C,DB: 🔒 Alur Request Terproteksi
-        C->>A: POST /graphql: getProfile() + Authorization Header
-        A->>Auth: Ekstrak JWT dari Header
-        
-        Auth->>JWT: Verifikasi Tanda Tangan Token
-        JWT-->>Auth: Token Valid/Invalid
-        
-        alt Token Invalid/Kadaluarsa
-            Auth-->>A: Error: Token tidak valid
-            A-->>C: 401 Unauthorized
-        else Token Valid
-            Auth->>JWT: Decode Klaim Token
-            JWT-->>Auth: User ID: 123
-            
-            Auth->>DB: SELECT * FROM users WHERE id = 123
-            DB-->>Auth: Data User
-            
-            alt User Tidak Ditemukan
-                Auth-->>A: Error: User tidak ditemukan
-                A-->>C: 404 Not Found
-            else User Ditemukan
-                Auth-->>A: Data Profil User
-                A-->>C: 200 OK + JSON Profil User
-                
-                Note over C: Profil Berhasil Diambil
-            end
-        end
-    end
+    Note over C,DB: 🔒 Alur Request Terproteksi
+    C->>A: POST /graphql: getProfile() + Authorization Header
+    A->>Auth: Ekstrak JWT dari Header
     
-    rect 
-        Note over C,DB: 🔄 Alur Refresh Token
-        C->>A: POST /graphql: refreshToken() + Cookie(refreshToken)
-        A->>Auth: Ekstrak Refresh Token dari Cookie
-        
-        Auth->>JWT: Verifikasi Refresh Token
-        JWT-->>Auth: Token Valid/Invalid
-        
-        alt Token Invalid/Kadaluarsa
-            Auth-->>A: Error: Refresh token tidak valid
-            A-->>C: 401 Unauthorized
-            Note over C: User Harus Login Lagi
-        else Token Valid
-            Auth->>DB: Cek apakah refresh token ada & tidak dicabut
-            DB-->>Auth: Status Token
-            
-            alt Token Dicabut/Tidak Ditemukan
-                Auth-->>A: Error: Token dicabut
-                A-->>C: 401 Unauthorized
-            else Token Aktif
-                Auth->>JWT: Buat Access Token Baru
-                JWT-->>Auth: Access Token Baru
-                
-                Auth->>JWT: Rotasi Refresh Token (Opsional)
-                JWT-->>Auth: Refresh Token Baru
-                
-                Auth->>DB: UPDATE refresh_token SET token = ?, updated_at = NOW()
-                DB-->>Auth: Diperbarui
-                
-                Auth-->>A: Pasangan Token Baru
-                A-->>C: 200 OK + Set-Cookie(refreshTokenBaru)
-                
-                Note over C: Token Berhasil Di-refresh
-            end
-        end
-    end
+    Auth->>JWT: Verifikasi Tanda Tangan Token
+    JWT-->>Auth: Token Valid/Invalid
     
-    rect 
-        Note over C,DB: 🚪 Alur Logout
-        C->>A: POST /graphql: logout() + Authorization Header
-        A->>Auth: Ekstrak JWT & Proses Logout
-        
-        Auth->>JWT: Decode Token untuk Dapatkan User ID
+    alt Token Invalid/Kadaluarsa
+        Auth-->>A: Error: Token tidak valid
+        A-->>C: 401 Unauthorized
+    else Token Valid
+        Auth->>JWT: Decode Klaim Token
         JWT-->>Auth: User ID: 123
         
-        Auth->>DB: DELETE FROM refresh_tokens WHERE user_id = 123
-        DB-->>Auth: Token Dicabut
+        Auth->>DB: SELECT * FROM users WHERE id = 123
+        DB-->>Auth: Data User
         
-        Auth-->>A: Logout Sukses
-        A-->>C: 200 OK + Clear-Cookie(refreshToken)
-        
-        Note over C: Pengguna Berhasil Logout
+        alt User Tidak Ditemukan
+            Auth-->>A: Error: User tidak ditemukan
+            A-->>C: 404 Not Found
+        else User Ditemukan
+            Auth-->>A: Data Profil User
+            A-->>C: 200 OK + JSON Profil User
+            
+            Note over C: Profil Berhasil Diambil
+        end
     end
+    
+    Note over C,DB: 🔄 Alur Refresh Token
+    C->>A: POST /graphql: refreshToken() + Cookie(refreshToken)
+    A->>Auth: Ekstrak Refresh Token dari Cookie
+    
+    Auth->>JWT: Verifikasi Refresh Token
+    JWT-->>Auth: Token Valid/Invalid
+    
+    alt Token Invalid/Kadaluarsa
+        Auth-->>A: Error: Refresh token tidak valid
+        A-->>C: 401 Unauthorized
+        Note over C: User Harus Login Lagi
+    else Token Valid
+        Auth->>DB: Cek apakah refresh token ada & tidak dicabut
+        DB-->>Auth: Status Token
+        
+        alt Token Dicabut/Tidak Ditemukan
+            Auth-->>A: Error: Token dicabut
+            A-->>C: 401 Unauthorized
+        else Token Aktif
+            Auth->>JWT: Buat Access Token Baru
+            JWT-->>Auth: Access Token Baru
+            
+            Auth->>JWT: Rotasi Refresh Token (Opsional)
+            JWT-->>Auth: Refresh Token Baru
+            
+            Auth->>DB: UPDATE refresh_token SET token = ?, updated_at = NOW()
+            DB-->>Auth: Diperbarui
+            
+            Auth-->>A: Pasangan Token Baru
+            A-->>C: 200 OK + Set-Cookie(refreshTokenBaru)
+            
+            Note over C: Token Berhasil Di-refresh
+        end
+    end
+    
+    Note over C,DB: 🚪 Alur Logout
+    C->>A: POST /graphql: logout() + Authorization Header
+    A->>Auth: Ekstrak JWT & Proses Logout
+    
+    Auth->>JWT: Decode Token untuk Dapatkan User ID
+    JWT-->>Auth: User ID: 123
+    
+    Auth->>DB: DELETE FROM refresh_tokens WHERE user_id = 123
+    DB-->>Auth: Token Dicabut
+    
+    Auth-->>A: Logout Sukses
+    A-->>C: 200 OK + Clear-Cookie(refreshToken)
+    
+    Note over C: Pengguna Berhasil Logout
 ```
 
 ### 🔐 Strategi Token
