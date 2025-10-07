@@ -465,7 +465,8 @@ sequenceDiagram
     participant Hash as Service Argon2
     participant JWT as Service JWT
     participant DB as Basis Data PostgreSQL
-
+    
+    rect
         Note over C,DB: 📝 Alur Registrasi
         C->>A: POST /graphql: register(email, password, nama)
         A->>Auth: Proses Request Registrasi
@@ -536,6 +537,7 @@ sequenceDiagram
         end
     end
     
+    rect 
         Note over C,DB: 🔒 Alur Request Terproteksi
         C->>A: POST /graphql: getProfile() + Authorization Header
         A->>Auth: Ekstrak JWT dari Header
@@ -565,6 +567,7 @@ sequenceDiagram
         end
     end
     
+    rect 
         Note over C,DB: 🔄 Alur Refresh Token
         C->>A: POST /graphql: refreshToken() + Cookie(refreshToken)
         A->>Auth: Ekstrak Refresh Token dari Cookie
@@ -601,6 +604,7 @@ sequenceDiagram
         end
     end
     
+    rect 
         Note over C,DB: 🚪 Alur Logout
         C->>A: POST /graphql: logout() + Authorization Header
         A->>Auth: Ekstrak JWT & Proses Logout
