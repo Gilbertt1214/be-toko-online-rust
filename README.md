@@ -1,123 +1,247 @@
 # 🛒 Toko Online NUVELLA
 
-> GraphQL API untuk sistem e-commerce modern
-
-[![Rust](https://img.shields.io/badge/Rust-1.70+-orange.svg?style=for-the-badge&logo=rust)](https://www.rust-lang.org/)
-[![Axum](https://img.shields.io/badge/Axum-Web_Framework-6B46C1?style=for-the-badge)](https://github.com/tokio-rs/axum)
-[![GraphQL](https://img.shields.io/badge/GraphQL-API-E10098?style=for-the-badge&logo=graphql)](https://graphql.org/)
-[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Database-336791?style=for-the-badge&logo=postgresql)](https://www.postgresql.org/)
-[![SeaORM](https://img.shields.io/badge/SeaORM-ORM-00BCD4?style=for-the-badge)](https://www.sea-ql.org/SeaORM/)
-
 <div align="center">
 
-**Built with Rust + Axum + SeaORM + async-graphql**
+![Rust](https://img.shields.io/badge/Rust-1.70+-orange.svg?style=for-the-badge&logo=rust)
+![Axum](https://img.shields.io/badge/Axum-0.7-6B46C1?style=for-the-badge)
+![GraphQL](https://img.shields.io/badge/GraphQL-API-E10098?style=for-the-badge&logo=graphql)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-336791?style=for-the-badge&logo=postgresql)
+![Xendit](https://img.shields.io/badge/Xendit-Payment-00BFA5?style=for-the-badge)
 
-Backend API yang blazingly fast dan type-safe untuk aplikasi e-commerce modern. Dibangun dengan teknologi terkini untuk performa maksimal, keamanan, dan maintainability.
+**Backend API E-Commerce Modern dengan Rust + Axum + GraphQL + Xendit**
 
-[🚀 Quick Start](#-quick-start) • [📖 Documentation](#-api-endpoints) • [🤝 Contributing](#-contributing)
+*Blazingly fast, type-safe, dan production-ready*
+
+[🚀 Mulai Cepat](#-instalasi-cepat) • [📖 Dokumentasi](#-dokumentasi-api) • [🎯 Roadmap](#-roadmap)
 
 </div>
 
 ---
 
-## ✨ Features
+## ✨ Fitur Unggulan
 
 <table>
 <tr>
 <td width="50%">
 
-### 🔐 Authentication & Security
-- JWT-based authentication
-- Argon2 password hashing
-- Role-based access control (RBAC)
-- Secure session management
+### 🔐 Keamanan & Autentikasi
+- ✅ JWT Authentication dengan refresh token
+- ✅ Password hashing Argon2id
+- ✅ Role-based Access Control (Admin/User)
+- ✅ Session management yang aman
+- ✅ Rate limiting untuk API protection
 
-### 🛍️ Product Management
-- Full CRUD operations
-- Category management
-- Image handling
-- Inventory tracking
-- Product search & filtering
+### 🛍️ Manajemen Produk
+- ✅ CRUD produk lengkap
+- ✅ Kategori & subkategori
+- ✅ Upload gambar produk
+- ✅ Tracking stok real-time
+- ✅ Pencarian & filter produk
+- ✅ Produk rekomendasi
 
-### 🛒 Shopping Experience
-- Real-time cart management
-- Cart persistence
-- Wishlist functionality
-- Product recommendations
+### 🛒 Keranjang Belanja
+- ✅ Keranjang persisten per user
+- ✅ Update quantity real-time
+- ✅ Validasi stok otomatis
+- ✅ Kalkulasi total otomatis
+- ✅ Wishlist functionality
 
 </td>
 <td width="50%">
 
-### 📦 Order Management
-- Complete order lifecycle
-- Order status tracking
-- Order history
-- Invoice generation
+### 📦 Manajemen Pesanan
+- ✅ Complete order lifecycle
+- ✅ Status tracking (Pending → Completed)
+- ✅ Order history
+- ✅ Invoice generation
+- ✅ Notification system
 
-### 💳 Payment Integration
-- Multiple payment methods
-- Secure payment processing
-- Transaction history
-- Refund management
+### 💳 Payment Gateway (Xendit)
+- ✅ Multiple payment methods
+  - 💳 Credit Card / Debit Card
+  - 🏦 Virtual Account (BCA, Mandiri, BNI, BRI)
+  - 🏪 E-Wallet (OVO, Dana, LinkAja, ShopeePay)
+  - 🏬 Retail Outlet (Alfamart, Indomaret)
+- ✅ Webhook handling
+- ✅ Payment verification
+- ✅ Refund support
+- ✅ Transaction history
 
-### ⭐ Customer Engagement
-- Product reviews & ratings
-- User profiles
-- Address management
-- Order notifications
+### ⭐ Engagement Pelanggan
+- ✅ Review & rating produk
+- ✅ User profile management
+- ✅ Multiple shipping address
+- ✅ Order notifications
+- ✅ Email notifications
 
 </td>
 </tr>
 </table>
 
-### 🚀 Technical Highlights
+---
 
-- **Type-Safe**: Leveraging Rust's powerful type system
-- **Async/Await**: Built on Tokio runtime for maximum concurrency
-- **GraphQL First**: Modern API with introspection and playground
-- **Database Migrations**: Version-controlled schema with SeaORM
-- **Error Handling**: Comprehensive error types and handling
-- **Logging**: Structured logging with tracing
-- **Testing**: Unit and integration tests included
+## 🏗️ Arsitektur Teknologi
 
-## 🛠️ Tech Stack
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    🌐 Client Layer                           │
+│          (React/Vue/Flutter + GraphQL Client)                │
+└────────────────────┬────────────────────────────────────────┘
+                     │ GraphQL Queries/Mutations
+                     ▼
+┌─────────────────────────────────────────────────────────────┐
+│                  🚀 API Gateway (Axum)                       │
+│                                                               │
+│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐      │
+│  │   GraphQL    │  │     REST     │  │   Webhook    │      │
+│  │   Endpoint   │  │   /health    │  │   /xendit    │      │
+│  └──────────────┘  └──────────────┘  └──────────────┘      │
+└────────────────────┬────────────────────────────────────────┘
+                     │
+                     ▼
+┌─────────────────────────────────────────────────────────────┐
+│              📊 GraphQL Layer (async-graphql)                │
+│                                                               │
+│  ┌─────────────────────────────────────────────────────┐    │
+│  │  Query Resolvers  │  Mutation Resolvers  │  Types   │    │
+│  └─────────────────────────────────────────────────────┘    │
+└────────────────────┬────────────────────────────────────────┘
+                     │
+                     ▼
+┌─────────────────────────────────────────────────────────────┐
+│                  💼 Business Logic Layer                     │
+│                                                               │
+│  ┌─────────┐ ┌─────────┐ ┌─────────┐ ┌──────────┐          │
+│  │  Auth   │ │ Product │ │  Cart   │ │  Order   │          │
+│  │ Service │ │ Service │ │ Service │ │ Service  │          │
+│  └─────────┘ └─────────┘ └─────────┘ └──────────┘          │
+│  ┌─────────┐ ┌─────────┐ ┌─────────┐ ┌──────────┐          │
+│  │ Payment │ │  User   │ │ Review  │ │ Category │          │
+│  │ Service │ │ Service │ │ Service │ │ Service  │          │
+│  └─────────┘ └─────────┘ └─────────┘ └──────────┘          │
+└────────────────────┬────────────────────────────────────────┘
+                     │
+                     ▼
+┌─────────────────────────────────────────────────────────────┐
+│              🗄️ Data Access Layer (SeaORM)                  │
+│                                                               │
+│  ┌──────────────────────────────────────────────────────┐   │
+│  │  Entity Models  │  Migrations  │  Connection Pool    │   │
+│  └──────────────────────────────────────────────────────┘   │
+└────────────────────┬────────────────────────────────────────┘
+                     │
+                     ▼
+┌─────────────────────────────────────────────────────────────┐
+│                  🗃️ PostgreSQL Database                     │
+│                                                               │
+│  Users │ Products │ Orders │ Payments │ Reviews │ etc.      │
+└─────────────────────────────────────────────────────────────┘
 
-<div align="center">
+        ┌────────────────────────────────────┐
+        │    🔌 External Services            │
+        │                                    │
+        │  • Xendit Payment Gateway          │
+        │  • Email Service (SMTP)            │
+        │  • Cloud Storage (Optional)        │
+        └────────────────────────────────────┘
+```
 
-| Category | Technology |
-|----------|-----------|
-| **Language** | ![Rust](https://img.shields.io/badge/Rust-000000?style=flat&logo=rust&logoColor=white) Rust 1.70+ |
-| **Web Framework** | ![Axum](https://img.shields.io/badge/Axum-6B46C1?style=flat) Axum |
-| **GraphQL** | ![GraphQL](https://img.shields.io/badge/async--graphql-E10098?style=flat&logo=graphql&logoColor=white) async-graphql |
-| **Database** | ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-336791?style=flat&logo=postgresql&logoColor=white) PostgreSQL 14+ |
-| **ORM** | ![SeaORM](https://img.shields.io/badge/SeaORM-00BCD4?style=flat) SeaORM |
-| **Runtime** | ![Tokio](https://img.shields.io/badge/Tokio-000000?style=flat) Tokio |
-| **Authentication** | ![JWT](https://img.shields.io/badge/JWT-000000?style=flat&logo=jsonwebtokens) jsonwebtoken |
-| **Serialization** | ![Serde](https://img.shields.io/badge/Serde-f06f00?style=flat) Serde |
-| **Password** | ![Argon2](https://img.shields.io/badge/Argon2-4B8BBE?style=flat) Argon2 |
-| **Logging** | ![Tracing](https://img.shields.io/badge/Tracing-000000?style=flat) tracing & tracing-subscriber |
+---
 
-</div>
+## 📁 Struktur Folder
 
-## 📋 Prerequisites
+```
+be-toko-online-rust/
+├── 📂 src/
+│   ├── 📂 config/          # Konfigurasi aplikasi
+│   │   ├── app.rs          # Config utama
+│   │   ├── mod.rs
+│   │   └── xendit.rs       # Xendit configuration
+│   │
+│   ├── 📂 db/              # Database setup
+│   │   ├── connection.rs   # Pool connection
+│   │   ├── seeder.rs       # Data seeder
+│   │   └── mod.rs
+│   │
+│   ├── 📂 graphql/         # GraphQL layer
+│   │   ├── graphql_types.rs  # Custom types
+│   │   ├── mod.rs
+│   │   ├── mutation.rs     # Mutation resolvers
+│   │   └── query.rs        # Query resolvers
+│   │
+│   ├── 📂 handlers/        # HTTP handlers
+│   │   ├── mod.rs
+│   │   ├── status.rs       # Health check handler
+│   │   └── webhook.rs      # Xendit webhook handler
+│   │
+│   ├── 📂 models/          # Data models (SeaORM entities)
+│   │   ├── address.rs
+│   │   ├── cart.rs
+│   │   ├── cart_item.rs
+│   │   ├── category.rs
+│   │   ├── order.rs
+│   │   ├── order_item.rs
+│   │   ├── payment.rs
+│   │   ├── product.rs
+│   │   ├── review.rs
+│   │   └── user.rs
+│   │
+│   ├── 📂 scalars/         # Custom GraphQL scalars
+│   │   ├── datetime.rs     # DateTime scalar
+│   │   └── mod.rs
+│   │
+│   ├── 📂 schema/          # Database schema
+│   │   └── mod.rs
+│   │
+│   ├── 📂 services/        # Business logic
+│   │   ├── auth.rs         # Authentication
+│   │   ├── cart.rs         # Cart management
+│   │   ├── category.rs     # Category service
+│   │   ├── order.rs        # Order processing
+│   │   ├── payment.rs      # Payment (Xendit)
+│   │   ├── product.rs      # Product CRUD
+│   │   ├── review.rs       # Review service
+│   │   └── user.rs         # User management
+│   │
+│   └── main.rs             # Entry point
+│
+├── 📂 migration/           # Database migrations
+│   ├── src/
+│   │   ├── m20240101_create_users.rs
+│   │   ├── m20240102_create_products.rs
+│   │   ├── m20240103_create_categories.rs
+│   │   ├── m20240104_create_orders.rs
+│   │   ├── m20240105_create_payments.rs
+│   │   └── lib.rs
+│   └── Cargo.toml
+│
+├── 📂 templates/           # HTML templates
+│   ├── index.html          # Landing page
+│   ├── playground.html     # Apollo Sandbox
+│   └── webhook_info.html   # Webhook docs
+│
+├── 📄 .env                 # Environment variables
+├── 📄 .gitignore
+├── 📄 Cargo.toml           # Dependencies
+├── 📄 Cargo.lock
+├── 📄 README.md
+└── 📄 docker-compose.yml   # Docker setup
+```
 
-Before running this project, make sure you have:
+---
 
-- Rust 1.70 or higher
-- PostgreSQL 14 or higher
-- Cargo (comes with Rust)
-
-## 🚀 Quick Start
+## 🚀 Instalasi Cepat
 
 ### Prerequisites
 
-Pastikan Anda sudah menginstall:
+Pastikan sudah terinstall:
 
-- **Rust** 1.70 atau lebih tinggi ([Install Rust](https://www.rust-lang.org/tools/install))
-- **PostgreSQL** 14 atau lebih tinggi ([Download PostgreSQL](https://www.postgresql.org/download/))
-- **Cargo** (otomatis terinstall dengan Rust)
+- **Rust** 1.70+ ([Install Rust](https://rustup.rs/))
+- **PostgreSQL** 14+ ([Download PostgreSQL](https://www.postgresql.org/download/))
+- **Cargo** (otomatis dengan Rust)
+- **SeaORM CLI** (untuk migrations)
 
-### Installation Steps
+### Langkah-langkah Instalasi
 
 #### 1️⃣ Clone Repository
 
@@ -128,27 +252,39 @@ cd be-toko-online-rust
 
 #### 2️⃣ Setup Environment Variables
 
-Buat file `.env` di root directory:
+Buat file `.env` di root project:
 
 ```env
 # Database Configuration
-DATABASE_URL=postgresql://postgres:your_password@localhost:5432/toko-online-rust
-
-# Security Keys (GENERATE NEW ONES!)
-SECRET_KEY=your-secret-key-here-32-chars-minimum
-JWT_SECRET=your-jwt-secret-here-32-chars-minimum
+DATABASE_URL=postgresql://postgres:password@localhost:5432/toko_online_nuvella
 
 # Server Configuration
 SERVER_HOST=127.0.0.1
 SERVER_PORT=8000
 
-# Optional: Logging Level
-RUST_LOG=info
+# Security Keys (GENERATE BARU!)
+SECRET_KEY=your-secret-key-32-characters-minimum
+JWT_SECRET=your-jwt-secret-32-characters-minimum
+
+# Xendit Configuration
+XENDIT_API_KEY=xnd_development_your_key_here
+XENDIT_WEBHOOK_TOKEN=your_webhook_verification_token
+XENDIT_CALLBACK_URL=https://yourdomain.com/webhook/xendit
+
+# Email Configuration (Optional)
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USERNAME=your-email@gmail.com
+SMTP_PASSWORD=your-app-password
+
+# Logging
+RUST_LOG=info,sqlx=warn
 ```
 
-**🔐 Generate Secure Keys:**
+**🔐 Generate Secret Keys:**
 
 ```bash
+# Install openssl jika belum ada
 # Generate SECRET_KEY
 openssl rand -hex 32
 
@@ -156,38 +292,49 @@ openssl rand -hex 32
 openssl rand -hex 32
 ```
 
-Copy hasil generate dan paste ke `.env` file.
+**💳 Xendit Setup:**
+
+1. Daftar di [Xendit Dashboard](https://dashboard.xendit.co/)
+2. Dapatkan **API Key** dari Settings → Developers
+3. Setup **Webhook URL** untuk notifikasi pembayaran
+4. Simpan **Webhook Verification Token**
 
 #### 3️⃣ Setup Database
 
 ```bash
-# Create database (Linux/Mac)
-createdb toko-online-rust
+# Buat database baru
+createdb toko_online_nuvella
 
-# Or using psql
-psql -U postgres -c "CREATE DATABASE \"toko-online-rust\";"
+# Atau menggunakan psql
+psql -U postgres
+CREATE DATABASE toko_online_nuvella;
+\q
 ```
 
-**Run Migrations:**
+#### 4️⃣ Install SeaORM CLI & Run Migrations
 
 ```bash
-# Install SeaORM CLI (if not already installed)
+# Install SeaORM CLI
 cargo install sea-orm-cli
 
-# Run migrations
+# Jalankan migrations
+cd migration
 sea-orm-cli migrate up
+
+# Atau langsung dari root
+sea-orm-cli migrate up -d ./migration
 ```
 
-#### 4️⃣ Build & Run
+#### 5️⃣ Build & Run
 
 **Development Mode:**
 
 ```bash
-# Run with hot reload (if using cargo-watch)
+# Run dengan auto-reload (install cargo-watch)
 cargo install cargo-watch
 cargo watch -x run
 
-# Or standard run
+# Atau run biasa
 cargo run
 ```
 
@@ -201,9 +348,9 @@ cargo build --release
 ./target/release/be-toko-online-rust
 ```
 
-#### 5️⃣ Verify Installation
+#### 6️⃣ Verifikasi Instalasi
 
-Server akan berjalan di `http://127.0.0.1:8000` 🎉
+Server berjalan di `http://127.0.0.1:8000` 🎉
 
 **Test endpoints:**
 
@@ -211,133 +358,241 @@ Server akan berjalan di `http://127.0.0.1:8000` 🎉
 # Health check
 curl http://127.0.0.1:8000/health
 
-# Open GraphQL Playground
+# Buka Apollo Sandbox
 open http://127.0.0.1:8000/graphql
-# Or visit in browser
 ```
 
-You should see the **Toko Online NUVELLA** interface! ✨
+---
 
-## 📁 Project Structure
+## 🔄 Flow Diagram Development
 
-```
-be-toko-online-rust/
-├── src/
-│   ├── db/              # Database connection setup
-│   │   ├── connection.rs
-│   │   ├── mod.rs
-│   │   └── seeder.rs
-│   ├── models/          # Data models
-│   │   ├── address.rs
-│   │   ├── cart.rs
-│   │   ├── cart_item.rs
-│   │   ├── category.rs
-│   │   ├── order.rs
-│   │   ├── order_item.rs
-│   │   ├── payment.rs
-│   │   ├── product.rs
-│   │   ├── review.rs
-│   │   └── user.rs
-│   ├── services/        # Business logic
-│   │   ├── auth.rs
-│   │   ├── cart.rs
-│   │   ├── order.rs
-│   │   ├── product.rs
-│   │   └── user.rs
-│   ├── graphql/         # GraphQL schema & resolvers
-│   │   ├── mod.rs
-│   │   ├── query.rs
-│   │   └── mutation.rs
-│   ├── schema/          # Database schema
-│   ├── utils/           # Utility functions
-│   └── main.rs          # Application entry point
-├── Cargo.toml           # Rust dependencies
-├── Cargo.lock
-└── README.md
-```
+### 🎯 Alur Request Processing
 
-## 🔌 API Endpoints
-
-### Available Endpoints
-
-| Endpoint | Description | Method |
-|----------|-------------|--------|
-| `/graphql` | GraphQL API (Apollo Sandbox) | POST |
-| `/health` | Health Check | GET |
-| `/` | API Information Page | GET |
-
-### 🎮 Apollo Sandbox
-
-Access the interactive GraphQL playground at:
-
-```
-http://127.0.0.1:8000/graphql
+```mermaid
+graph TB
+    A[Client Request] -->|HTTP/HTTPS| B[Axum Router]
+    B -->|GraphQL Query/Mutation| C[GraphQL Handler]
+    B -->|REST Endpoint| D[REST Handler]
+    B -->|Xendit Webhook| E[Webhook Handler]
+    
+    C --> F[Middleware Layer]
+    D --> F
+    E --> F
+    
+    F -->|Auth Check| G[JWT Validation]
+    G -->|Valid| H[Service Layer]
+    G -->|Invalid| Z[401 Unauthorized]
+    
+    H --> I{Business Logic}
+    
+    I -->|Auth Service| J[Register/Login/Logout]
+    I -->|Product Service| K[CRUD Products]
+    I -->|Cart Service| L[Cart Operations]
+    I -->|Order Service| M[Order Processing]
+    I -->|Payment Service| N[Xendit Integration]
+    
+    J --> O[Database Layer]
+    K --> O
+    L --> O
+    M --> O
+    N --> O
+    
+    O -->|SeaORM| P[(PostgreSQL)]
+    
+    N -->|API Call| Q[Xendit API]
+    Q -->|Payment Created| R[Payment Response]
+    R --> S[Client Redirect]
+    
+    Q -.->|Webhook| E
+    E -->|Verify Signature| T{Valid?}
+    T -->|Yes| U[Update Payment Status]
+    T -->|No| V[Reject]
+    U --> O
+    
+    P --> W[Response Builder]
+    W --> X[JSON Response]
+    X --> Y[Client]
 ```
 
-The Apollo Sandbox provides:
-- ✅ Auto-complete for queries and mutations
-- 📖 Schema introspection and documentation
-- 🔍 Query history
-- 🎨 Syntax highlighting
-- ⚡ Real-time query execution
+### 💳 Payment Flow dengan Xendit
 
-### 🏥 Health Check
-
-Monitor server status:
-
-```bash
-curl http://127.0.0.1:8000/health
+```mermaid
+sequenceDiagram
+    participant C as Client/Frontend
+    participant A as Axum API
+    participant S as Payment Service
+    participant X as Xendit API
+    participant W as Webhook
+    participant D as Database
+    
+    C->>A: createOrder(paymentMethod)
+    A->>S: Process Order
+    S->>D: Save Order (PENDING)
+    D-->>S: Order Created
+    
+    S->>X: Create Invoice/VA/EWallet
+    X-->>S: Payment URL/VA Number
+    S->>D: Save Payment (PENDING)
+    D-->>S: Payment Saved
+    S-->>A: Payment Info
+    A-->>C: Payment URL/Details
+    
+    C->>C: User Completes Payment
+    
+    X->>W: Webhook: payment.paid
+    W->>W: Verify Signature
+    W->>D: Update Payment (SUCCESS)
+    W->>D: Update Order (PAID)
+    D-->>W: Updated
+    W-->>X: 200 OK
+    
+    Note over W: Send Email Notification
+    W->>C: Push Notification (Optional)
+    
+    C->>A: checkOrderStatus(orderId)
+    A->>D: Get Order Status
+    D-->>A: Order Status: PAID
+    A-->>C: Order Confirmed
 ```
 
-Response:
-```json
-{
-  "status": "healthy",
-  "timestamp": "2025-10-05T10:30:00Z"
-}
+### 🔄 User Authentication Flow
+
+```mermaid
+sequenceDiagram
+    participant C as Client
+    participant A as API
+    participant Auth as Auth Service
+    participant DB as Database
+    participant JWT as JWT Service
+    
+    rect rgb(200, 220, 255)
+        Note over C,JWT: Registration Flow
+        C->>A: register(email, password, name)
+        A->>Auth: Validate Input
+        Auth->>DB: Check Email Exists
+        DB-->>Auth: Email Available
+        Auth->>Auth: Hash Password (Argon2)
+        Auth->>DB: Create User
+        DB-->>Auth: User Created
+        Auth->>JWT: Generate Tokens
+        JWT-->>Auth: Access + Refresh Token
+        Auth-->>A: User + Tokens
+        A-->>C: Success Response
+    end
+    
+    rect rgb(220, 255, 220)
+        Note over C,JWT: Login Flow
+        C->>A: login(email, password)
+        A->>Auth: Validate Credentials
+        Auth->>DB: Find User by Email
+        DB-->>Auth: User Data
+        Auth->>Auth: Verify Password
+        Auth->>JWT: Generate Tokens
+        JWT-->>Auth: Access + Refresh Token
+        Auth-->>A: User + Tokens
+        A-->>C: Success + Set Cookies
+    end
+    
+    rect rgb(255, 220, 220)
+        Note over C,JWT: Protected Request Flow
+        C->>A: getProfile() + JWT
+        A->>Auth: Verify Token
+        Auth->>JWT: Decode & Validate
+        JWT-->>Auth: Valid User ID
+        Auth->>DB: Get User Profile
+        DB-->>Auth: User Data
+        Auth-->>A: Profile Data
+        A-->>C: User Profile
+    end
 ```
 
-### 📝 Example Queries & Mutations
+### 🛒 Shopping Cart to Order Flow
+
+```mermaid
+stateDiagram-v2
+    [*] --> BrowseProducts: User Membuka Toko
+    
+    BrowseProducts --> AddToCart: Pilih Produk
+    AddToCart --> ViewCart: Lihat Keranjang
+    
+    ViewCart --> UpdateQuantity: Ubah Jumlah
+    UpdateQuantity --> ViewCart
+    
+    ViewCart --> RemoveItem: Hapus Item
+    RemoveItem --> ViewCart
+    
+    ViewCart --> Checkout: Lanjut Checkout
+    
+    Checkout --> SelectAddress: Pilih Alamat
+    SelectAddress --> SelectPayment: Pilih Payment
+    
+    SelectPayment --> CreateOrder: Buat Order
+    
+    CreateOrder --> OrderPending: Order Dibuat
+    OrderPending --> PaymentCreated: Generate Payment
+    
+    PaymentCreated --> WaitingPayment: Redirect ke Payment
+    
+    WaitingPayment --> PaymentSuccess: User Bayar
+    WaitingPayment --> PaymentExpired: Timeout
+    
+    PaymentSuccess --> OrderPaid: Update Status
+    OrderPaid --> OrderProcessing: Mulai Proses
+    OrderProcessing --> OrderShipped: Dikirim
+    OrderShipped --> OrderDelivered: Sampai
+    OrderDelivered --> OrderCompleted: Selesai
+    
+    PaymentExpired --> OrderCancelled: Order Dibatalkan
+    
+    OrderCompleted --> [*]
+    OrderCancelled --> [*]
+```
+
+---
+
+## 📖 Dokumentasi API
+
+### GraphQL Playground
+
+Akses Apollo Sandbox di: **`http://127.0.0.1:8000/graphql`**
+
+Features:
+- ✅ Schema documentation otomatis
+- ✅ Auto-completion
+- ✅ Query history
+- ✅ Syntax highlighting
+- ✅ Real-time execution
+
+### Endpoint Summary
+
+| Endpoint | Method | Deskripsi |
+|----------|--------|-----------|
+| `/graphql` | POST | GraphQL API endpoint |
+| `/health` | GET | Health check server |
+| `/webhook/xendit` | POST | Xendit payment webhook |
+| `/` | GET | API information page |
+
+---
+
+## 📝 Contoh Query & Mutation
+
+### 🔐 Authentication
 
 <details>
-<summary><b>🔍 Query: Get All Products with Categories</b></summary>
-
-```graphql
-query GetProducts {
-  products(limit: 10, offset: 0) {
-    id
-    name
-    price
-    stock
-    description
-    imageUrl
-    category {
-      id
-      name
-    }
-    reviews {
-      rating
-      comment
-    }
-  }
-}
-```
-</details>
-
-<details>
-<summary><b>👤 Mutation: Register New User</b></summary>
+<summary><b>Register User Baru</b></summary>
 
 ```graphql
 mutation Register {
-  createUser(input: {
+  register(input: {
     name: "John Doe"
     email: "john@example.com"
     password: "SecurePass123!"
-    phoneNumber: "+62812345678"
+    phoneNumber: "081234567890"
   }) {
     id
     name
     email
+    phoneNumber
     createdAt
   }
 }
@@ -345,7 +600,7 @@ mutation Register {
 </details>
 
 <details>
-<summary><b>🔐 Mutation: Login</b></summary>
+<summary><b>Login</b></summary>
 
 ```graphql
 mutation Login {
@@ -353,19 +608,80 @@ mutation Login {
     email: "john@example.com"
     password: "SecurePass123!"
   }) {
-    token
+    accessToken
+    refreshToken
     user {
       id
       name
       email
+      role
     }
   }
 }
 ```
 </details>
 
+### 🛍️ Products
+
 <details>
-<summary><b>🛒 Mutation: Add Product to Cart</b></summary>
+<summary><b>Ambil Semua Produk</b></summary>
+
+```graphql
+query GetProducts {
+  products(
+    limit: 20
+    offset: 0
+    filter: {
+      categoryId: 1
+      minPrice: 10000
+      maxPrice: 1000000
+      inStock: true
+    }
+  ) {
+    id
+    name
+    description
+    price
+    stock
+    imageUrl
+    category {
+      id
+      name
+    }
+    averageRating
+    totalReviews
+  }
+}
+```
+</details>
+
+<details>
+<summary><b>Tambah Produk Baru (Admin)</b></summary>
+
+```graphql
+mutation CreateProduct {
+  createProduct(input: {
+    name: "iPhone 15 Pro Max"
+    description: "Latest iPhone with A17 Pro chip"
+    price: 19999000
+    stock: 50
+    categoryId: 1
+    imageUrl: "https://example.com/iphone15.jpg"
+  }) {
+    id
+    name
+    price
+    stock
+    createdAt
+  }
+}
+```
+</details>
+
+### 🛒 Shopping Cart
+
+<details>
+<summary><b>Tambah ke Keranjang</b></summary>
 
 ```graphql
 mutation AddToCart {
@@ -379,10 +695,13 @@ mutation AddToCart {
     items {
       id
       quantity
+      subtotal
       product {
+        id
         name
         price
         imageUrl
+        stock
       }
     }
   }
@@ -391,25 +710,66 @@ mutation AddToCart {
 </details>
 
 <details>
-<summary><b>📦 Mutation: Create Order</b></summary>
+<summary><b>Lihat Keranjang</b></summary>
+
+```graphql
+query GetCart {
+  myCart {
+    id
+    totalItems
+    totalPrice
+    items {
+      id
+      quantity
+      subtotal
+      product {
+        id
+        name
+        price
+        imageUrl
+        stock
+      }
+    }
+    updatedAt
+  }
+}
+```
+</details>
+
+### 💳 Orders & Payments
+
+<details>
+<summary><b>Buat Order Baru</b></summary>
 
 ```graphql
 mutation CreateOrder {
   createOrder(input: {
     addressId: 1
-    paymentMethod: "CREDIT_CARD"
-    notes: "Please deliver in the morning"
+    paymentMethod: "VIRTUAL_ACCOUNT"
+    bankCode: "BCA"
+    notes: "Kirim pagi hari"
   }) {
-    id
-    orderNumber
-    status
-    totalAmount
-    items {
-      product {
-        name
+    order {
+      id
+      orderNumber
+      status
+      totalAmount
+      items {
+        product {
+          name
+        }
+        quantity
+        price
       }
-      quantity
-      price
+    }
+    payment {
+      id
+      externalId
+      paymentUrl
+      accountNumber
+      bankCode
+      amount
+      expiresAt
     }
   }
 }
@@ -417,207 +777,254 @@ mutation CreateOrder {
 </details>
 
 <details>
-<summary><b>⭐ Mutation: Add Product Review</b></summary>
+<summary><b>Cek Status Pembayaran</b></summary>
 
 ```graphql
-mutation AddReview {
-  createReview(input: {
-    productId: 1
-    rating: 5
-    comment: "Excellent product! Highly recommended."
-  }) {
+query CheckPaymentStatus($orderId: ID!) {
+  order(id: $orderId) {
     id
-    rating
-    comment
-    user {
-      name
+    orderNumber
+    status
+    payment {
+      id
+      status
+      method
+      paidAt
+      accountNumber
+      bankCode
     }
-    createdAt
   }
 }
 ```
 </details>
 
-## 🧪 Testing
+---
 
-### Run Tests
+## 💳 Integrasi Xendit
+
+### Payment Methods Tersedia
+
+| Method | Code | Deskripsi |
+|--------|------|-----------|
+| 💳 Credit Card | `CREDIT_CARD` | Visa, Mastercard, JCB |
+| 🏦 Virtual Account | `VIRTUAL_ACCOUNT` | BCA, Mandiri, BNI, BRI, Permata |
+| 🏪 E-Wallet | `EWALLET` | OVO, Dana, LinkAja, ShopeePay |
+| 🏬 Retail Outlet | `RETAIL_OUTLET` | Alfamart, Indomaret |
+| 🏧 QR Code | `QR_CODE` | QRIS |
+
+### Setup Webhook
+
+1. Masuk ke [Xendit Dashboard](https://dashboard.xendit.co/)
+2. Buka **Settings → Webhooks**
+3. Tambah webhook URL: `https://yourdomain.com/webhook/xendit`
+4. Pilih events:
+   - `invoice.paid`
+   - `invoice.expired`
+   - `payment.paid`
+   - `payment.failed`
+
+### Testing Xendit (Development)
 
 ```bash
-# Run all tests
-cargo test
-
-# Run tests with output
-cargo test -- --show-output
-
-# Run specific test
-cargo test test_user_creation
-
-# Run tests in specific module
-cargo test models::user::tests
-
-# Run integration tests only
-cargo test --test '*'
+# Test Virtual Account BCA
+curl -X POST http://localhost:8000/graphql \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+  -d '{
+    "query": "mutation { createOrder(input: { addressId: 1, paymentMethod: \"VIRTUAL_ACCOUNT\", bankCode: \"BCA\" }) { payment { accountNumber } } }"
+  }'
 ```
 
-### Test Coverage
+**Test Payment dengan Xendit Simulator:**
+- BCA VA: `https://simulator.xendit.co/`
+
+---
+
+## 🧪 Testing
+
+### Unit Tests
 
 ```bash
-# Install tarpaulin for coverage
-cargo install cargo-tarpaulin
+# Run semua tests
+cargo test
 
-# Generate coverage report
+# Run dengan output detail
+cargo test -- --show-output --nocapture
+
+# Run test spesifik
+cargo test test_user_registration
+
+# Run tests di module tertentu
+cargo test services::auth::tests
+```
+
+### Integration Tests
+
+```bash
+# Run integration tests
+cargo test --test '*'
+
+# Dengan coverage
+cargo install cargo-tarpaulin
 cargo tarpaulin --out Html --output-dir coverage
 ```
 
 ### Load Testing
 
 ```bash
-# Using Apache Bench
-ab -n 1000 -c 10 http://127.0.0.1:8000/health
+# Install tools
+sudo apt install apache2-utils  # untuk ab
+cargo install drill             # HTTP load testing
 
-# Using wrk
-wrk -t12 -c400 -d30s http://127.0.0.1:8000/graphql
+# Test health endpoint
+ab -n 10000 -c 100 http://127.0.0.1:8000/health
+
+# Test GraphQL
+drill --benchmark benchmark.yml --stats
 ```
 
-## 🔒 Security Features
+---
 
-- Password hashing with Argon2
-- JWT token authentication
-- SQL injection prevention via ORM
-- CORS configuration
-- Request rate limiting
-- Input validation and sanitization
+## 🐳 Docker Deployment
 
-## 📊 Database Schema
-
-Key entities and relationships:
-
-```mermaid
-erDiagram
-    USERS ||--o{ ORDERS : places
-    USERS ||--o{ CART : has
-    USERS ||--o{ REVIEWS : writes
-    USERS ||--o{ ADDRESSES : has
-    PRODUCTS ||--o{ CART_ITEMS : contains
-    PRODUCTS ||--o{ ORDER_ITEMS : contains
-    PRODUCTS ||--o{ REVIEWS : has
-    PRODUCTS }o--|| CATEGORIES : belongs_to
-    ORDERS ||--o{ ORDER_ITEMS : contains
-    ORDERS ||--|| PAYMENTS : has
-    CART ||--o{ CART_ITEMS : contains
-```
-
-**Main Tables:**
-- **users** - Customer accounts and authentication
-- **products** - Product catalog with details
-- **categories** - Product categorization
-- **cart** - Shopping cart management
-- **cart_items** - Items in shopping cart
-- **orders** - Purchase orders
-- **order_items** - Items in orders
-- **payments** - Payment transactions
-- **reviews** - Product reviews and ratings
-- **addresses** - User shipping addresses
-
-## 🚀 Performance & Optimization
-
-### Performance Metrics
-
-- **Response Time**: < 50ms (average)
-- **Throughput**: 10,000+ requests/sec
-- **Memory Usage**: ~50MB (idle)
-- **Database Connections**: Pooled (max 20)
-
-### Optimization Features
-
-- **Connection Pooling**: Database connection pooling with SQLx
-- **Query Optimization**: Indexed queries and eager loading
-- **Caching**: In-memory caching for frequent queries
-- **Async I/O**: Non-blocking async operations
-- **Compression**: Response compression with gzip
-- **Rate Limiting**: Protection against abuse
-
-## 📦 Deployment
-
-### Using Docker
+### Development dengan Docker Compose
 
 ```bash
-# Build image
-docker build -t toko-online-nuvella .
-
-# Run container
-docker run -p 8000:8000 --env-file .env toko-online-nuvella
-```
-
-### Using Docker Compose
-
-```bash
-# Start all services (app + postgres)
+# Start semua services (app + postgres)
 docker-compose up -d
 
-# View logs
-docker-compose logs -f
+# Lihat logs
+docker-compose logs -f app
 
 # Stop services
 docker-compose down
+
+# Rebuild
+docker-compose up -d --build
 ```
 
-### Production Deployment
+### Production Docker
 
-**Recommended platforms:**
-- 🚀 Railway
-- 🌊 Fly.io
-- ☁️ AWS ECS/Fargate
-- 🔷 DigitalOcean App Platform
-- 🟦 Azure Container Instances
+```dockerfile
+# Build image
+docker build -t toko-nuvella:latest .
 
-**Environment Variables for Production:**
+# Run container
+docker run -d \
+  --name toko-nuvella \
+  -p 8000:8000 \
+  --env-file .env.production \
+  toko-nuvella:latest
+```
+
+---
+
+## 🚀 Deployment Production
+
+### Platform Rekomendasi
+
+| Platform | Difficulty | Cost | Best For |
+|----------|-----------|------|----------|
+| 🚂 Railway | ⭐ Easy | Free tier | Prototype/MVP |
+| 🌊 Fly.io | ⭐⭐ Medium | Pay as go | Production |
+| ☁️ AWS ECS | ⭐⭐⭐ Advanced | $$ | Enterprise |
+| 🔷 DigitalOcean | ⭐⭐ Medium | $ | Small business |
+
+### Environment Variables Production
 
 ```env
-DATABASE_URL=your-production-database-url
-SECRET_KEY=your-production-secret-key
-JWT_SECRET=your-production-jwt-secret
+# PRODUCTION SETTINGS
+DATABASE_URL=postgresql://user:pass@prod-db:5432/db
+SECRET_KEY=<GENERATE_NEW_SECURE_KEY>
+JWT_SECRET=<GENERATE_NEW_SECURE_KEY>
+XENDIT_API_KEY=xnd_production_<YOUR_PROD_KEY>
 SERVER_HOST=0.0.0.0
 SERVER_PORT=8000
 RUST_LOG=warn
 ```
 
+---
+
+## 🛡️ Security Best Practices
+
+✅ **Implemented:**
+- Password hashing dengan Argon2id
+- JWT dengan expiry time
+- SQL injection prevention (SeaORM)
+- CORS configuration
+- Rate limiting
+- Input validation & sanitization
+- Webhook signature verification (Xendit)
+
+⚠️ **Rekomendasi Production:**
+- Aktifkan HTTPS/TLS
+- Setup firewall rules
+- Database encryption at rest
+- Regular security audits
+- Implement API versioning
+- Setup monitoring & alerting
+
+---
+
+## 🎯 Roadmap
+
+### ✅ Completed
+- [x] GraphQL API dengan async-graphql
+- [x] Authentication & Authorization (JWT)
+- [x] CRUD Produk & Kategori
+- [x] Shopping Cart Management
+- [x] Order Processing System
+- [x] Xendit Payment Integration
+- [x] Webhook Handler
+- [x] Review & Rating System
+
+### 🔄 In Progress
+- [ ] Email Notifications (SMTP)
+- [ ] Admin Dashboard API
+- [ ] Product Image Upload (S3/Cloud Storage)
+- [ ] Advanced Search (Full-text search)
+
+### 📋 Planned
+- [ ] Real-time Notifications (WebSocket)
+- [ ] Product Recommendations (ML)
+- [ ] Multi-language Support (i18n)
+- [ ] API Rate Limiting per User
+- [ ] Elasticsearch Integration
+- [ ] Redis Caching Layer
+- [ ] Shipping Integration (J&T, JNE, SiCepat)
+- [ ] Promo & Discount System
+- [ ] Loyalty Points Program
+- [ ] Chat Customer Service
+
+---
+
 ## 🤝 Contributing
 
-Contributions are welcome! Here's how you can help:
+Kontribusi sangat diterima! Berikut cara berkontribusi:
 
-### How to Contribute
+### Langkah Kontribusi
 
-1. **Fork** the repository
-2. Create a **feature branch** (`git checkout -b feature/AmazingFeature`)
-3. **Commit** your changes (`git commit -m 'Add some AmazingFeature'`)
-4. **Push** to the branch (`git push origin feature/AmazingFeature`)
-5. Open a **Pull Request**
+1. **Fork** repository ini
+2. Buat **feature branch** (`git checkout -b feature/FiturKeren`)
+3. **Commit** perubahan (`git commit -m 'Menambahkan fitur keren'`)
+4. **Push** ke branch (`git push origin feature/FiturKeren`)
+5. Buat **Pull Request**
 
-### Contribution Guidelines
+### Guidelines
 
-- ✅ Follow Rust coding conventions
-- ✅ Write meaningful commit messages
-- ✅ Add tests for new features
-- ✅ Update documentation as needed
-- ✅ Ensure all tests pass before submitting PR
+- ✅ Ikuti konvensi penamaan Rust
+- ✅ Tulis unit tests untuk fitur baru
+- ✅ Update dokumentasi jika perlu
+- ✅ Pastikan `cargo fmt && cargo clippy` clean
+- ✅ Commit message yang jelas
 
-### Code Style
+---
 
-```bash
-# Format code
-cargo fmt
+## 📄 License
 
-# Check for common mistakes
-cargo clippy
+Project ini menggunakan **MIT License** - lihat file [LICENSE](LICENSE) untuk detail.
 
-# Run all checks
-cargo fmt && cargo clippy && cargo test
-```
-
-## 📝 License
-
-This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
+---
 
 ## 👨‍💻 Author
 
@@ -626,66 +1033,47 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 **Gilbertt1214**
 
 [![GitHub](https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white)](https://github.com/Gilbertt1214)
-[![LinkedIn](https://www.linkedin.com/in/fahriana-nurzukhruf-45986a308/)](#)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/fahriana-nurzukhruf-45986a308/)
 
-*Building the future of e-commerce with Rust* 🦀
+*Membangun masa depan e-commerce dengan Rust* 🦀
 
 </div>
+
+---
 
 ## 🙏 Acknowledgments
 
-Special thanks to:
+Terima kasih kepada:
 
-- 🦀 **Rust Community** - For amazing tools and libraries
-- 🎯 **Tokio Team** - For the excellent async runtime
-- 🌐 **Axum** - For the ergonomic web framework
-- 🗄️ **SeaORM** - For the powerful ORM solution
-- 🎨 **async-graphql** - For the feature-rich GraphQL implementation
-- 💡 **Open Source Contributors** - For inspiration and guidance
+- 🦀 **Rust Community** - Untuk tools dan library yang luar biasa
+- 🎯 **Tokio Team** - Async runtime yang powerful
+- 🌐 **Axum** - Web framework yang ergonomis
+- 🗄️ **SeaORM** - ORM solution yang excellent
+- 🎨 **async-graphql** - GraphQL implementation terbaik
+- 💳 **Xendit** - Payment gateway Indonesia terbaik
+- 💡 **Open Source Contributors** - Untuk inspirasi dan guidance
 
-## 📞 Support
+---
 
-Need help? Feel free to:
+## 📞 Support & Contact
 
-- 🐛 [Open an issue](https://github.com/Gilbertt1214/be-toko-online-rust/issues)
-- 💬 Start a [discussion](https://github.com/Gilbertt1214/be-toko-online-rust/discussions)
-- 📧 Contact: [your-email@example.com]
+Butuh bantuan? Silakan hubungi:
 
-## 📈 Project Status
-
-<div align="center">
-
-![GitHub last commit](https://img.shields.io/github/last-commit/Gilbertt1214/be-toko-online-rust?style=flat-square)
-![GitHub issues](https://img.shields.io/github/issues/Gilbertt1214/be-toko-online-rust?style=flat-square)
-![GitHub stars](https://img.shields.io/github/stars/Gilbertt1214/be-toko-online-rust?style=flat-square)
-![GitHub forks](https://img.shields.io/github/forks/Gilbertt1214/be-toko-online-rust?style=flat-square)
-
-</div>
-
-## 🗺️ Roadmap
-
-- [x] GraphQL API Implementation
-- [x] Authentication & Authorization
-- [x] Product & Category Management
-- [x] Shopping Cart Functionality
-- [x] Order Processing
-- [ ] Payment Gateway Integration (Midtrans/Stripe)
-- [ ] Email Notifications
-- [ ] Admin Dashboard API
-- [ ] Real-time Notifications (WebSocket)
-- [ ] Product Recommendations (ML)
-- [ ] Multi-language Support
-- [ ] API Rate Limiting & Throttling
-- [ ] Advanced Search with Elasticsearch
+- 🐛 **Bug Reports**: [Open an Issue](https://github.com/Gilbertt1214/be-toko-online-rust/issues)
+- 💬 **Diskusi**: [GitHub Discussions](https://github.com/Gilbertt1214/be-toko-online-rust/discussions)
+- 📧 **Email**: gilbertt@example.com
+- 💼 **LinkedIn**: [Fahriana Nurzukhruf](https://www.linkedin.com/in/fahriana-nurzukhruf-45986a308/)
 
 ---
 
 <div align="center">
 
-⭐ **If you find this project useful, please consider giving it a star!** ⭐
+### ⭐ Jika project ini bermanfaat, berikan star! ⭐
 
-**Made with ❤️ and 🦀 Rust**
+**Dibuat dengan ❤️ menggunakan 🦀 Rust**
 
-**Happy Coding! 🚀**
+**Selamat Ngoding! 🚀**
+
+![Rust Logo](https://www.rust-lang.org/logos/rust-logo-512x512.png)
 
 </div>
