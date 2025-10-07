@@ -4,6 +4,7 @@
 
 ![Rust](https://img.shields.io/badge/Rust-1.70+-orange.svg?style=for-the-badge&logo=rust)
 ![Axum](https://img.shields.io/badge/Axum-0.7-6B46C1?style=for-the-badge)
+![SeaORM](https://img.shields.io/badge/SeaORM-1.0-00BCD4?style=for-the-badge)
 ![GraphQL](https://img.shields.io/badge/GraphQL-API-E10098?style=for-the-badge&logo=graphql)
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-336791?style=for-the-badge&logo=postgresql)
 ![Xendit](https://img.shields.io/badge/Xendit-Payment-00BFA5?style=for-the-badge)
