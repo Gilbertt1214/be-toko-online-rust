@@ -3,7 +3,6 @@ use serde::Deserialize;
 use std::env;
 
 // Compatible with base64 v0.22
-
 #[derive(Debug, Clone, Deserialize)]
 pub struct XenditConfig {
     pub secret_key: String,
@@ -39,7 +38,6 @@ impl XenditConfig {
     }
 
     /// Generate Basic Auth header untuk Xendit API
-    /// Format: "Basic base64(secret_key:)"
     pub fn get_basic_auth(&self) -> String {
         let credentials = format!("{}:", self.secret_key);
         let encoded = general_purpose::STANDARD.encode(credentials.as_bytes());

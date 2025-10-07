@@ -2,14 +2,12 @@
 use async_graphql::SimpleObject;
 use bigdecimal::ToPrimitive;
 use std::fmt;
-
 use crate::models::{user, product, order, order_item, cart_item, review};
 use crate::models::user::UserRole;
 use crate::services::payment_service::XenditInvoiceResponse;
 
-//
 // --- UserRole Display (fix) ---
-//
+
 impl fmt::Display for UserRole {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
@@ -20,9 +18,7 @@ impl fmt::Display for UserRole {
     }
 }
 
-//
 // --- GraphQL Types ---
-//
 
 // User GraphQL Type
 #[derive(SimpleObject)]
