@@ -1,4 +1,14 @@
+use std::env;
 
+#[allow(dead_code)]
+pub struct Config {
+    pub database_url: String,
+    pub server_host: String,
+    pub server_port: u16,
+    pub jwt_secret: String,
+}
+
+#[allow(dead_code)]
 impl Config {
     pub fn from_env() -> Self {
         Self {

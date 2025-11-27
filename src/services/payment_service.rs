@@ -4,6 +4,7 @@ use reqwest::Client;
 use serde::{Deserialize, Serialize};
 
 /// Main Payment Service untuk integrasi dengan Xendit
+#[allow(dead_code)]
 pub struct PaymentService {
     config: XenditConfig,
     client: Client,
@@ -49,6 +50,7 @@ pub struct InvoiceItem {
 
 /// Response dari Xendit saat membuat/get invoice
 #[derive(Debug, Deserialize, Clone)]
+#[allow(dead_code)]
 pub struct XenditInvoiceResponse {
     pub id: String,
     pub external_id: String,
@@ -123,6 +125,11 @@ impl PaymentService {
         }
     }
 
+    /// Get reference to config
+    pub fn get_config(&self) -> &XenditConfig {
+        &self.config
+    }
+
     /// Buat invoice baru di Xendit
     pub async fn create_invoice(
         &self,
@@ -177,6 +184,7 @@ impl PaymentService {
     }
 
     /// Get detail invoice by ID
+    #[allow(dead_code)]
     pub async fn get_invoice(&self, invoice_id: &str) -> Result<XenditInvoiceResponse> {
         let url = format!("{}/v2/invoices/{}", self.config.api_url, invoice_id);
 
@@ -207,6 +215,7 @@ impl PaymentService {
     }
 
     /// Get invoice by external_id
+    #[allow(dead_code)]
     pub async fn get_invoice_by_external_id(
         &self,
         external_id: &str,
@@ -216,6 +225,7 @@ impl PaymentService {
     }
 
     /// Expire invoice secara manual
+    #[allow(dead_code)]
     pub async fn expire_invoice(&self, invoice_id: &str) -> Result<XenditInvoiceResponse> {
         let url = format!("{}/v2/invoices/{}/expire!", self.config.api_url, invoice_id);
 
@@ -246,16 +256,47 @@ impl PaymentService {
             // Jika tidak ada token, skip verification (tidak disarankan)
             return true;
         }
-            if i != 0 && i % 3 == 0 {
-                vec!['.', c]
-            } else {
-                vec![c]
-            }
-        })
-        .collect::<String>()
-        .chars()
-        .rev()
-        .collect::<String>()
+
+        // Simple token comparison
+        received_token == self.config.webhook_token
+    }
+}
+
+// ==================== Helper Functions ====================
+
+/// Convert rupiah (float) to Xendit format (integer, dalam rupiah)
+#[allow(dead_code)]
+pub fn rupiah_to_xendit(amount: f64) -> i64 {
+    amount as i64
+}
+
+/// Convert Xendit amount (integer) to rupiah (float)
+#[allow(dead_code)]
+pub fn xendit_to_rupiah(amount: i64) -> f64 {
+    amount as f64
+}
+
+/// Format amount as Rupiah string
+#[allow(dead_code)]
+pub fn format_rupiah(amount: i64) -> String {
+    format!(
+        "Rp {}",
+        amount
+            .to_string()
+            .chars()
+            .rev()
+            .enumerate()
+            .flat_map(|(i, c)| {
+                if i != 0 && i % 3 == 0 {
+                    vec!['.', c]
+                } else {
+                    vec![c]
+                }
+            })
+            .collect::<String>()
+            .chars()
+            .rev()
+            .collect::<String>()
     )
 }
 

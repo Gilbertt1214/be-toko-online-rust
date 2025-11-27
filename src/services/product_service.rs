@@ -1,10 +1,10 @@
 use bigdecimal::BigDecimal;
-use chrono::NaiveDateTime;
 use sea_orm::{ActiveModelTrait, ColumnTrait, DatabaseConnection, EntityTrait, QueryFilter, QueryOrder, QuerySelect, Set};
 use std::str::FromStr;
 
 use crate::models::{prelude::Product, product};
 
+#[allow(dead_code)]
 pub struct ProductService;
 
 impl ProductService {
@@ -246,6 +246,18 @@ impl ProductService {
     pub async fn get_active(db: &DatabaseConnection) -> Result<Vec<product::Model>, String> {
         Product::find()
             .filter(product::Column::IsActive.eq(true))
+            .all(db)
+            .await
+            .map_err(|e| format!("Database error: {}", e))
+    }
+
+    /// Increase product stock
+    #[allow(dead_code)]
+    pub async fn increase_stock(
+        db: &DatabaseConnection,
+        id: i64,
+        quantity: i32,
+    ) -> Result<Option<product::Model>, String> {
         let Some(existing) = Product::find_by_id(id)
             .one(db)
             .await
@@ -269,6 +281,7 @@ impl ProductService {
     // ==================== NEW QUERY METHODS ====================
 
     /// Get products with pagination
+    #[allow(dead_code)]
     pub async fn get_paginated(
         db: &DatabaseConnection,
         page: u64,
@@ -292,6 +305,7 @@ impl ProductService {
     }
 
     /// Get total product count
+    #[allow(dead_code)]
     pub async fn count_all(
         db: &DatabaseConnection,
         active_only: bool,
@@ -312,6 +326,7 @@ impl ProductService {
     }
 
     /// Get products by price range
+    #[allow(dead_code)]
     pub async fn get_by_price_range(
         db: &DatabaseConnection,
         min_price: &str,
@@ -338,6 +353,7 @@ impl ProductService {
     }
 
     /// Get products with low stock (below threshold)
+    #[allow(dead_code)]
     pub async fn get_low_stock(
         db: &DatabaseConnection,
         threshold: i32,
@@ -352,6 +368,7 @@ impl ProductService {
     }
 
     /// Get out of stock products
+    #[allow(dead_code)]
     pub async fn get_out_of_stock(db: &DatabaseConnection) -> Result<Vec<product::Model>, String> {
         Product::find()
             .filter(product::Column::Stock.eq(0))
@@ -362,6 +379,7 @@ impl ProductService {
     }
 
     /// Get featured products (recent active products)
+    #[allow(dead_code)]
     pub async fn get_featured(
         db: &DatabaseConnection,
         limit: u64,
@@ -376,6 +394,7 @@ impl ProductService {
     }
 
     /// Get recent products
+    #[allow(dead_code)]
     pub async fn get_recent(
         db: &DatabaseConnection,
         limit: u64,
@@ -396,6 +415,7 @@ impl ProductService {
     }
 
     /// Get products sorted by price (ascending)
+    #[allow(dead_code)]
     pub async fn get_sorted_by_price_asc(
         db: &DatabaseConnection,
         active_only: bool,
@@ -414,6 +434,7 @@ impl ProductService {
     }
 
     /// Get products sorted by price (descending)
+    #[allow(dead_code)]
     pub async fn get_sorted_by_price_desc(
         db: &DatabaseConnection,
         active_only: bool,
@@ -432,6 +453,7 @@ impl ProductService {
     }
 
     /// Get products sorted by name
+    #[allow(dead_code)]
     pub async fn get_sorted_by_name(
         db: &DatabaseConnection,
         active_only: bool,
@@ -450,6 +472,7 @@ impl ProductService {
     }
 
     /// Get products sorted by stock (ascending)
+    #[allow(dead_code)]
     pub async fn get_sorted_by_stock_asc(
         db: &DatabaseConnection,
         active_only: bool,
@@ -468,6 +491,7 @@ impl ProductService {
     }
 
     /// Get products sorted by stock (descending)
+    #[allow(dead_code)]
     pub async fn get_sorted_by_stock_desc(
         db: &DatabaseConnection,
         active_only: bool,

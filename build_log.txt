@@ -1,0 +1,21 @@
+   Compiling be-toko-online-rust v0.1.0 (C:\Users\rianf\OneDrive\Documents\belajar ngoding\Webdev\be-toko-online-rust)
+error: expected `;`, found keyword `let`
+   --> src\services\product_service.rs:248:56
+    |
+248 |             .filter(product::Column::IsActive.eq(true))
+    |                                                        ^ help: add `;` here
+249 |         let Some(existing) = Product::find_by_id(id)
+    |         --- unexpected token
+
+error: unexpected closing delimiter: `}`
+   --> src\services\cart_service.rs:185:1
+    |
+181 |     pub async fn get_cart_count(db: &DatabaseConnection, user_id: i64) -> Result<usize, String> {
+    |                                                                                                 - this opening brace...
+...
+184 |     }
+    |     - ...matches this closing brace
+185 | }
+    | ^ unexpected closing delimiter
+
+error: could not compile `be-toko-online-rust` (bin "be-toko-online-rust") due to 2 previous errors

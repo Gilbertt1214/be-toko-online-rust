@@ -5,6 +5,7 @@ use bigdecimal::{BigDecimal, FromPrimitive};
 
 use crate::models::{cart, cart_item, order, order_item, product, prelude::*};
 
+#[allow(dead_code)]
 pub struct OrderService;
 
 impl OrderService {
@@ -182,6 +183,32 @@ impl OrderService {
                 .await
                 .map_err(|e| format!("Failed to update order: {}", e))?;
 
+            Ok(Some(updated))
+        } else {
+            Ok(None)
+        }
+    }
+
+    /// Get order items for an order
+    pub async fn get_order_items(
+        db: &DatabaseConnection,
+        order_id: i64,
+    ) -> Result<Vec<order_item::Model>, String> {
+        OrderItem::find()
+            .filter(order_item::Column::OrderId.eq(order_id))
+            .all(db)
+            .await
+            .map_err(|e| format!("Database error: {}", e))
+    }
+
+    /// Delete order item
+    #[allow(dead_code)]
+    pub async fn delete_order_item(
+        db: &DatabaseConnection,
+        item_id: i64,
+    ) -> Result<bool, String> {
+        let item = OrderItem::find_by_id(item_id)
+            .one(db)
             .await
             .map_err(|e| format!("Database error: {}", e))?;
 

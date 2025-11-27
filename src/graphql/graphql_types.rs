@@ -101,6 +101,7 @@ impl From<order::Model> for OrderGraphQL {
 }
 
 // Order Item GraphQL Type
+#[allow(dead_code)]
 #[derive(SimpleObject)]
 pub struct OrderItemGraphQL {
     pub id: i64,
@@ -187,6 +188,7 @@ impl From<review::Model> for ReviewGraphQL {
 }
 
 // Payment GraphQL Type
+#[allow(dead_code)]
 #[derive(SimpleObject)]
 pub struct PaymentGraphQL {
     pub id: String,
@@ -251,6 +253,7 @@ impl From<product::Model> for ProductDetailGraphQL {
 }
 
 // Extended Review GraphQL Type dengan informasi tambahan
+#[allow(dead_code)]
 #[derive(SimpleObject)]
 pub struct ReviewDetailGraphQL {
     pub id: i64,
@@ -333,6 +336,7 @@ impl ProductWithRatingGraphQL {
 }
 
 // Category
+#[allow(dead_code)]
 #[derive(SimpleObject)]
 pub struct CategoryWithProductsGraphQL {
     pub id: i64,
@@ -352,6 +356,7 @@ impl From<crate::models::category::Model> for CategoryWithProductsGraphQL {
 }
 
 // Cart Item dengan Product Detail
+#[allow(dead_code)]
 #[derive(SimpleObject)]
 pub struct CartItemWithProductGraphQL {
     pub id: i64,
@@ -362,6 +367,7 @@ pub struct CartItemWithProductGraphQL {
 }
 
 // Order dengan Order Items
+#[allow(dead_code)]
 #[derive(SimpleObject)]
 pub struct OrderWithItemsGraphQL {
     pub id: i64,
@@ -414,6 +420,7 @@ pub struct PaymentInvoiceResponse {
     pub expiry_date: String,
 }
 
+#[allow(dead_code)]
 #[derive(SimpleObject)]
 pub struct PaymentStatusResponse {
     pub invoice_id: String,

@@ -110,8 +110,8 @@ fn build_graphql_schema(
 ) -> AppSchema {
     println!("Building GraphQL schema...");
     let schema = Schema::build(
-        schema::QueryRoot,
-        schema::MutationRoot,
+        schema::QueryRoot::default(),
+        schema::MutationRoot::default(),
         EmptySubscription,
     )
     .data(pool)

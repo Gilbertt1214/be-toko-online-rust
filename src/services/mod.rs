@@ -8,8 +8,7 @@ pub mod category_service;
 
 pub use product_service::ProductService;
 pub use cart_service::CartService;
-pub use order_service::{OrderService, OrderItemService};
+pub use order_service::OrderService;
 pub use review_service::ReviewService;
 pub use user_service::UserService;
-pub use payment_service::PaymentService;
 pub use category_service::CategoryService;

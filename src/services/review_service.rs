@@ -4,10 +4,12 @@ use sea_orm::{
 
 use crate::models::{prelude::Review, review};
 
+#[allow(dead_code)]
 pub struct ReviewService;
 
 impl ReviewService {
     /// Create new review
+    #[allow(dead_code)]
     pub async fn create_review(
         db: &DatabaseConnection,
         user_id: i64,
@@ -34,6 +36,7 @@ impl ReviewService {
     }
 
     /// Get review by ID
+    #[allow(dead_code)]
     pub async fn get_by_id(
         db: &DatabaseConnection,
         review_id: i64,
@@ -57,6 +60,7 @@ impl ReviewService {
     }
 
     /// Get all reviews by a user
+    #[allow(dead_code)]
     pub async fn get_by_user(
         db: &DatabaseConnection,
         user_id: i64,
@@ -69,6 +73,7 @@ impl ReviewService {
     }
 
     /// Get user's review for a specific product
+    #[allow(dead_code)]
     pub async fn get_user_review(
         db: &DatabaseConnection,
         user_id: i64,
@@ -83,6 +88,7 @@ impl ReviewService {
     }
 
     /// Update review
+    #[allow(dead_code)]
     pub async fn update_review(
         db: &DatabaseConnection,
         review_id: i64,
@@ -118,6 +124,7 @@ impl ReviewService {
     }
 
     /// Delete review
+    #[allow(dead_code)]
     pub async fn delete_review(db: &DatabaseConnection, review_id: i64) -> Result<bool, String> {
         let res = Review::delete_by_id(review_id)
             .exec(db)

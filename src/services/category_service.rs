@@ -4,10 +4,12 @@ use sea_orm::{
 
 use crate::models::{prelude::*, category};
 
+#[allow(dead_code)]
 pub struct CategoryService;
 
 impl CategoryService {
     /// Create new category
+    #[allow(dead_code)]
     pub async fn create_category(
         db: &DatabaseConnection,
         name: String,
@@ -66,7 +68,23 @@ impl CategoryService {
             .map_err(|e| format!("Database error: {}", e))
     }
 
+    /// Alias for get_all_categories
+    pub async fn get_all(
+        db: &DatabaseConnection,
+    ) -> Result<Vec<category::Model>, String> {
+        Self::get_all_categories(db).await
+    }
+
+    /// Alias for get_category_by_id
+    pub async fn get_by_id(
+        db: &DatabaseConnection,
+        category_id: i32,
+    ) -> Result<Option<category::Model>, String> {
+        Self::get_category_by_id(db, category_id).await
+    }
+
     /// Update category
+    #[allow(dead_code)]
     pub async fn update_category(
         db: &DatabaseConnection,
         category_id: i32,
@@ -115,6 +133,7 @@ impl CategoryService {
     }
 
     /// Delete category
+  #[allow(dead_code)]
   pub async fn delete_category(
     db: &DatabaseConnection,
     category_id: i32,
