@@ -1,15 +1,3 @@
-use sea_orm::entity::prelude::*;
-use serde::{Deserialize, Serialize};
-use async_graphql::SimpleObject;
-
-#[derive(Clone, Debug, PartialEq, DeriveEntityModel, Serialize, Deserialize, SimpleObject)]
-#[sea_orm(table_name = "addresses")]
-pub struct Model {
-    #[sea_orm(primary_key)]
-    pub id: i64,
-
-    pub user_id: Option<i64>,
-    pub label: Option<String>,
     pub recipient_name: Option<String>,
     pub phone: Option<String>,
     pub address_line: String,
@@ -21,6 +9,7 @@ pub struct Model {
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
+#[allow(dead_code)]
 pub enum Relation {
     #[sea_orm(
         belongs_to = "super::user::Entity",

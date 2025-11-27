@@ -417,17 +417,5 @@ pub struct PaymentInvoiceResponse {
 #[derive(SimpleObject)]
 pub struct PaymentStatusResponse {
     pub invoice_id: String,
-    pub external_id: String,
-    pub status: String,
-    pub amount: f64,
-    pub paid_amount: f64,
-}
-#[derive(SimpleObject)]
-pub struct OrderItemResponse {
-    pub id: i64,
-    pub order_id: i64,
-    pub product_id: Option<i64>,
-    pub price: f64,
-    pub quantity: i32,
     pub subtotal: Option<f64>,
 }

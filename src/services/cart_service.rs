@@ -103,19 +103,6 @@ impl CartService {
         };
 
         new_item
-            .insert(db)
-            .await
-            .map_err(|e| format!("Failed to add item: {}", e))
-    }
-
-    /// Update cart item quantity
-pub async fn update_item_quantity(
-    db: &DatabaseConnection,
-    item_id: i64,
-    quantity: i32,
-) -> Result<Option<cart_item::Model>, String> {
-    if quantity <= 0 {
-        CartItem::delete_by_id(item_id)
             .exec(db)
             .await
             .map_err(|e| format!("Database error: {}", e))?;

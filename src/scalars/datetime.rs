@@ -68,7 +68,7 @@ impl ScalarType for DateTimeScalar {
 
     fn to_value(&self) -> Value {
         // Ubah ke string ISO 8601
-        let datetime = DateTime::<Utc>::from_utc(self.0, Utc);
+        let datetime = DateTime::<Utc>::from_naive_utc_and_offset(self.0, Utc);
         Value::String(datetime.to_rfc3339())
     }
 }

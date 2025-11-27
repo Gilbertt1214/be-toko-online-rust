@@ -246,47 +246,6 @@ impl ProductService {
     pub async fn get_active(db: &DatabaseConnection) -> Result<Vec<product::Model>, String> {
         Product::find()
             .filter(product::Column::IsActive.eq(true))
-            .all(db)
-            .await
-            .map_err(|e| format!("Database error: {}", e))
-    }
-
-    /// Reduce stock after purchase
-    pub async fn reduce_stock(
-        db: &DatabaseConnection,
-        id: i64,
-        quantity: i32,
-    ) -> Result<Option<product::Model>, String> {
-        let Some(existing) = Product::find_by_id(id)
-            .one(db)
-            .await
-            .map_err(|e| format!("Database error: {}", e))?
-        else {
-            return Ok(None);
-        };
-
-        if existing.stock < quantity {
-            return Err("Insufficient stock".to_string());
-        }
-
-        let mut active: product::ActiveModel = existing.into();
-        let new_stock = active.stock.clone().unwrap() - quantity;
-        active.stock = Set(new_stock);
-        active.updated_at = Set(Some(chrono::Utc::now().naive_utc()));
-
-        active
-            .update(db)
-            .await
-            .map(Some)
-            .map_err(|e| format!("Failed to reduce stock: {}", e))
-    }
-
-    /// Increase stock (restock or cancel order)
-    pub async fn increase_stock(
-        db: &DatabaseConnection,
-        id: i64,
-        quantity: i32,
-    ) -> Result<Option<product::Model>, String> {
         let Some(existing) = Product::find_by_id(id)
             .one(db)
             .await

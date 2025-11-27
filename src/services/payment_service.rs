@@ -246,53 +246,6 @@ impl PaymentService {
             // Jika tidak ada token, skip verification (tidak disarankan)
             return true;
         }
-
-        // Constant time comparison untuk mencegah timing attacks
-        received_token == self.config.webhook_token
-    }
-
-    /// Verify webhook signature (jika Xendit mengirim signature)
-    pub fn verify_webhook_signature(
-        &self,
-        signature: &str,
-        payload: &str,
-    ) -> bool {
-        // TODO: Implement HMAC signature verification
-        // Xendit menggunakan callback_token untuk verifikasi
-        // Untuk sekarang, kita pakai token verification
-        self.verify_webhook_token(signature)
-    }
-
-    /// Get konfigurasi Xendit (untuk debugging)
-    pub fn get_config(&self) -> &XenditConfig {
-        &self.config
-    }
-
-    /// Check apakah payment service dalam mode production
-    pub fn is_production(&self) -> bool {
-        self.config.is_production
-    }
-}
-
-// ==================== Helper Functions ====================
-
-/// Konversi amount dari Rupiah ke format Xendit (tanpa desimal)
-pub fn rupiah_to_xendit(rupiah: f64) -> i64 {
-    rupiah.round() as i64
-}
-
-/// Konversi amount dari Xendit ke Rupiah
-pub fn xendit_to_rupiah(amount: i64) -> f64 {
-    amount as f64
-}
-
-/// Format Rupiah untuk display
-pub fn format_rupiah(amount: i64) -> String {
-    format!("Rp {}", amount.to_string().as_str()
-        .chars()
-        .rev()
-        .enumerate()
-        .flat_map(|(i, c)| {
             if i != 0 && i % 3 == 0 {
                 vec!['.', c]
             } else {
